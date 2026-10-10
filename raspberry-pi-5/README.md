@@ -20,10 +20,8 @@ cpupower and sudo, with boot configuration in `/boot`.
 | Init system | OpenRC, systemd (services are enabled automatically with OpenRC only) |
 | CPU optimization | Tuned for Cortex-A76, tuned with LTO (includes workarounds for packages that fail with LTO), generic arm64 |
 | Desktop | None, GNOME, KDE Plasma |
-| Root filesystem | microSD card, NVMe drive, USB drive (root device in `cmdline.txt`) |
-| PCIe Gen 3 | For NVMe drives |
 | CPU frequency | 2.4 GHz (stock), 2.6 GHz, 2.8 GHz (needs good cooling) |
-| Serial console | Console on UART |
+| Serial console | UART enabled in `config.txt` |
 | zram swap | Disabled, 1, 2 or 4 GB |
 
 Software groups, each applied to selected stage4 stages: Wi-Fi and Bluetooth, Raspberry Pi utilities, development
@@ -33,10 +31,10 @@ The hostname is generated from the name of the project.
 
 ## Notes
 
+- `cmdline.txt` (root device and kernel arguments) isn't created by the template, it depends on the device the system
+  is deployed to and is created when deploying.
 - Booting from NVMe or USB also needs the boot order in the EEPROM of Raspberry Pi set to try these devices
-  (`rpi-eeprom-config`), the template configures only the system.
-- Root partition is expected to be the second partition of the device, with ext4 filesystem, and boot partition the
-  first one.
+  (`rpi-eeprom-config`).
 
 ## Format
 

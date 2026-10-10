@@ -37,25 +37,6 @@ options = [
 ]
 
 [[variables]]
-id = "boot_device"
-title = "Root filesystem"
-description = "Device with root partition (second partition), used in cmdline.txt."
-default = "sd"
-options = [
-    { value = "sd", title = "microSD card" },
-    { value = "nvme", title = "NVMe drive (M.2 HAT)" },
-    { value = "usb", title = "USB drive" },
-]
-
-[[variables]]
-id = "pcie_gen3"
-title = "PCIe Gen 3"
-description = "Faster NVMe drives. Not officially certified, some drives and HATs are unstable with it."
-type = "boolean"
-default = false
-when = "boot_device == 'nvme'"
-
-[[variables]]
 id = "overclock"
 title = "CPU frequency"
 description = "Overclocking needs Active Cooler or other good cooling."
@@ -91,7 +72,6 @@ lto = "{{ optimization == 'lto' }}"
 cpu_flags = "-O2 -pipe -mcpu=cortex-a76+crc+crypto -mtune=cortex-a76"
 common_flags = "{{ None if optimization == 'generic' else cpu_flags + (' -flto -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing' if lto else '') }}"
 hostname = "{{ replace(lower(project_name), ' ', '-') or 'raspberrypi' }}"
-root_device = "{{ '/dev/nvme0n1p2' if boot_device == 'nvme' else '/dev/sda2' if boot_device == 'usb' else '/dev/mmcblk0p2' }}"
 stage1_name = "stage1-{{ init }}"
 stage4_name = "stage4-{{ init }}"
 desktop_stage3_name = "stage3-desktop-{{ init }}"

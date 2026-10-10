@@ -1,1 +1,0 @@
-{{ 'console=serial0,115200 ' if serial_console else '' }}console=tty1 root={{ root_device }} rootfstype=ext4 fsck.repair=yes rootwait
