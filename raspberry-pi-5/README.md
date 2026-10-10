@@ -6,8 +6,9 @@ Select **From template** when creating a project in Catalyst Lab.
 ## Stages
 
 ```
-stage1 ─┬─ stage3 ── stage4                (console system)
-        └─ stage3-desktop ── stage4-<desktop>   (optional GNOME or KDE Plasma)
+stage1 ─┬─ stage3 ── stage4                          (console system)
+        └─ stage3-desktop ─┬─ stage4-gnome           (if GNOME is selected)
+                           └─ stage4-plasma          (if KDE Plasma is selected)
 ```
 
 stage4 includes the Raspberry Pi kernel and firmware (`sys-kernel/raspberrypi-image`), NetworkManager, SSH, NTP,
@@ -19,7 +20,7 @@ cpupower and sudo, with boot configuration in `/boot`.
 |---|---|
 | Init system | OpenRC, systemd (services are enabled automatically with OpenRC only) |
 | CPU optimization | Tuned for Cortex-A76, tuned with LTO (includes workarounds for packages that fail with LTO), generic arm64 |
-| Desktop | None, GNOME, KDE Plasma |
+| Desktops | GNOME, KDE Plasma (any of them, each gets its own stage4) |
 | CPU frequency | 2.4 GHz (stock), 2.6 GHz, 2.8 GHz (needs good cooling) |
 | Serial console | UART enabled in `config.txt` |
 | zram swap | Disabled, 1, 2 or 4 GB |

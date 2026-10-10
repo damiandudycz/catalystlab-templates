@@ -1,7 +1,7 @@
 format = 1
 min_app_version = "0.2.0"
 name = "Raspberry Pi 5"
-description = "Gentoo for Raspberry Pi 5: CPU tuned stages, boot configuration, zram swap and optional GNOME or KDE Plasma desktop."
+description = "Gentoo for Raspberry Pi 5: CPU tuned stages, boot configuration, zram swap and optional GNOME and KDE Plasma desktops."
 groups_title = "Software"
 architecture = "arm64"
 
@@ -27,11 +27,10 @@ options = [
 
 [[variables]]
 id = "desktop"
-title = "Desktop"
-description = "Desktop stages are built next to the console stage4, from desktop stage3."
-default = "none"
+title = "Desktops"
+description = "Every selected desktop gets its own stage4, built from desktop stage3 next to the console stage4."
+type = "multiple"
 options = [
-    { value = "none", title = "None" },
     { value = "gnome", title = "GNOME" },
     { value = "plasma", title = "KDE Plasma" },
 ]
@@ -74,10 +73,11 @@ common_flags = "{{ None if optimization == 'generic' else cpu_flags + (' -flto -
 hostname = "{{ replace(lower(project_name), ' ', '-') or 'raspberrypi' }}"
 stage1_name = "stage1-{{ init }}"
 stage4_name = "stage4-{{ init }}"
+with_desktop = "{{ desktop != [] }}"
 desktop_stage3_name = "stage3-desktop-{{ init }}"
-desktop_stage4_name = "stage4-{{ desktop }}-{{ init }}"
-desktop_profile = "default/linux/arm64/23.0/desktop/{{ desktop }}{{ '/systemd' if init == 'systemd' else '' }}"
-desktop_packages = "{{ ['gnome-base/gnome', 'gnome-base/gdm'] if desktop == 'gnome' else ['kde-plasma/plasma-meta', 'x11-misc/sddm'] if desktop == 'plasma' else [] }}"
+gnome_stage4_name = "stage4-gnome-{{ init }}"
+plasma_stage4_name = "stage4-plasma-{{ init }}"
+desktop_profile_suffix = "{{ '/systemd' if init == 'systemd' else '' }}"
 base_packages = "{{ ['app-admin/sudo', 'app-portage/gentoolkit', 'net-misc/networkmanager', 'net-misc/ntp', 'sys-power/cpupower', 'sys-kernel/raspberrypi-image'] + (['app-admin/sysklogd'] if openrc else []) + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
 base_services = "{{ (['cpupower|boot', 'dbus|default', 'NetworkManager|default', 'sysklogd|default', 'ntpd|default', 'ntp-client|default', 'sshd|default'] + ([] if zram == 'off' else ['zram-init|boot'])) if openrc else [] }}"
 
@@ -116,19 +116,34 @@ parent = "stage1"
 name = "{{ desktop_stage3_name }}"
 target = "stage3"
 releng_template = "stage3d-{{ init }}-23.spec"
-when = "desktop != 'none'"
+when = "with_desktop"
 
 [[stages]]
-id = "stage4-desktop"
+id = "stage4-gnome"
 parent = "stage3-desktop"
-name = "{{ desktop_stage4_name }}"
+name = "{{ gnome_stage4_name }}"
 target = "stage4"
-when = "desktop != 'none'"
+when = "'gnome' in desktop"
 [stages.arguments]
-profile = { type = "PortageProfile", value = { path = "{{ desktop_profile }}", stability = "stable", repo = "gentoo" } }
-version_stamp = "{{ desktop }}-{{ init }}-@TIMESTAMP@"
+profile = { type = "PortageProfile", value = { path = "default/linux/arm64/23.0/desktop/gnome{{ desktop_profile_suffix }}", stability = "stable", repo = "gentoo" } }
+version_stamp = "gnome-{{ init }}-@TIMESTAMP@"
 stage4_use = ["networkmanager", "bluetooth", "pulseaudio"]
-stage4_packages = "{{ base_packages + desktop_packages }}"
+stage4_packages = "{{ base_packages + ['gnome-base/gnome', 'gnome-base/gdm'] }}"
+stage4_rcadd = "{{ base_services + (['display-manager|default'] if openrc else []) }}"
+stage4_empty = ["/var/cache/distfiles"]
+stage4_rm = ["/root/.bash_history"]
+
+[[stages]]
+id = "stage4-plasma"
+parent = "stage3-desktop"
+name = "{{ plasma_stage4_name }}"
+target = "stage4"
+when = "'plasma' in desktop"
+[stages.arguments]
+profile = { type = "PortageProfile", value = { path = "default/linux/arm64/23.0/desktop/plasma{{ desktop_profile_suffix }}", stability = "stable", repo = "gentoo" } }
+version_stamp = "plasma-{{ init }}-@TIMESTAMP@"
+stage4_use = ["networkmanager", "bluetooth", "pulseaudio"]
+stage4_packages = "{{ base_packages + ['kde-plasma/plasma-meta', 'x11-misc/sddm'] }}"
 stage4_rcadd = "{{ base_services + (['display-manager|default'] if openrc else []) }}"
 stage4_empty = ["/var/cache/distfiles"]
 stage4_rm = ["/root/.bash_history"]
@@ -144,37 +159,67 @@ source = "files/stage4"
 destination = "stages/{{ stage4_name }}"
 
 [[files]]
-source = "files/stage4"
-destination = "stages/{{ desktop_stage4_name }}"
-when = "desktop != 'none'"
-
-[[files]]
 source = "files/zram"
 destination = "stages/{{ stage4_name }}/root_overlay"
 when = "zram != 'off'"
 
+# Desktops: the same as console stage4, with display manager and build workarounds of large packages.
+[[files]]
+source = "files/stage4"
+destination = "stages/{{ gnome_stage4_name }}"
+when = "'gnome' in desktop"
+
 [[files]]
 source = "files/zram"
-destination = "stages/{{ desktop_stage4_name }}/root_overlay"
-when = "zram != 'off' and desktop != 'none'"
+destination = "stages/{{ gnome_stage4_name }}/root_overlay"
+when = "zram != 'off' and 'gnome' in desktop"
 
-# Desktop: display manager and build workarounds of large packages.
 [[files]]
 source = "files/desktop"
-destination = "stages/{{ desktop_stage4_name }}"
-when = "desktop != 'none'"
+destination = "stages/{{ gnome_stage4_name }}"
+when = "'gnome' in desktop"
+
+[[files]]
+source = "files/desktop-gnome"
+destination = "stages/{{ gnome_stage4_name }}"
+when = "'gnome' in desktop"
 
 [[files]]
 source = "files/lto-workarounds"
-destination = "stages/{{ desktop_stage4_name }}/portage"
-when = "desktop != 'none' and lto"
+destination = "stages/{{ gnome_stage4_name }}/portage"
+when = "'gnome' in desktop and lto"
+
+[[files]]
+source = "files/stage4"
+destination = "stages/{{ plasma_stage4_name }}"
+when = "'plasma' in desktop"
+
+[[files]]
+source = "files/zram"
+destination = "stages/{{ plasma_stage4_name }}/root_overlay"
+when = "zram != 'off' and 'plasma' in desktop"
+
+[[files]]
+source = "files/desktop"
+destination = "stages/{{ plasma_stage4_name }}"
+when = "'plasma' in desktop"
+
+[[files]]
+source = "files/desktop-plasma"
+destination = "stages/{{ plasma_stage4_name }}"
+when = "'plasma' in desktop"
+
+[[files]]
+source = "files/lto-workarounds"
+destination = "stages/{{ plasma_stage4_name }}/portage"
+when = "'plasma' in desktop and lto"
 
 [[groups]]
 id = "wireless"
 title = "Wi-Fi and Bluetooth"
 description = "Firmware of wireless chip and Bluetooth service."
 default = true
-stages = ["stage4", "stage4-desktop"]
+stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["sys-firmware/raspberrypi-wifi-ucode", "net-wireless/bluez"]
 stage4_rcadd = "{{ ['bluetooth|default'] if openrc else [] }}"
@@ -184,7 +229,7 @@ id = "utilities"
 title = "Raspberry Pi utilities"
 description = "vcgencmd, pinctrl, eeprom and other tools."
 default = true
-stages = ["stage4", "stage4-desktop"]
+stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["dev-embedded/raspberrypi-utils"]
 
@@ -192,7 +237,7 @@ stage4_packages = ["dev-embedded/raspberrypi-utils"]
 id = "development"
 title = "Development tools"
 description = "git, eselect-repository, distcc and kernel headers."
-stages = ["stage4", "stage4-desktop"]
+stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/distcc", "sys-kernel/linux-headers"]
 
@@ -200,7 +245,7 @@ stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/d
 id = "docker"
 title = "Docker"
 description = "Container engine, started at boot."
-stages = ["stage4", "stage4-desktop"]
+stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]
 stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
