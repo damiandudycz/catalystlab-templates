@@ -179,10 +179,11 @@ stage4_rm = ["/root/.bash_history"]
 source = "files/stage1"
 destination = "stages/{{ stage1_name }}"
 
-# Compiled kernel: script building it, run by catalyst in every stage4 and installed in system to build it again.
+# Compiled kernel: script building it (run by catalyst in every stage4) with sources allowed from testing branch
+# (~arm64), and the script installed in system to build kernel again.
 [[files]]
-source = "files/kernel-sources/build-kernel.sh"
-destination = "stages/{{ stage4_name }}/build-kernel.sh"
+source = "files/kernel-sources"
+destination = "stages/{{ stage4_name }}"
 when = "compiled_kernel"
 
 [[files]]
@@ -191,8 +192,8 @@ destination = "stages/{{ stage4_name }}/root_overlay/usr/local/sbin/build-raspbe
 when = "compiled_kernel"
 
 [[files]]
-source = "files/kernel-sources/build-kernel.sh"
-destination = "stages/{{ gnome_stage4_name }}/build-kernel.sh"
+source = "files/kernel-sources"
+destination = "stages/{{ gnome_stage4_name }}"
 when = "compiled_kernel and 'gnome' in desktop"
 
 [[files]]
@@ -201,8 +202,8 @@ destination = "stages/{{ gnome_stage4_name }}/root_overlay/usr/local/sbin/build-
 when = "compiled_kernel and 'gnome' in desktop"
 
 [[files]]
-source = "files/kernel-sources/build-kernel.sh"
-destination = "stages/{{ plasma_stage4_name }}/build-kernel.sh"
+source = "files/kernel-sources"
+destination = "stages/{{ plasma_stage4_name }}"
 when = "compiled_kernel and 'plasma' in desktop"
 
 [[files]]
