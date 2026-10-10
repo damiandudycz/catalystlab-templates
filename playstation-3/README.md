@@ -3,7 +3,8 @@
 Gentoo for PlayStation 3, based on the configuration from the first version of Catalyst Lab.
 
 ```
-stage1 ─┬─ stage3 ── stage4                         (console system)
+stage1 ─┬─ stage3 ─┬─ stage4                       (console system)
+        │          └─ livecd-stage1 ── livecd-stage2 (optional installation ISO, OpenRC)
         └─ stage3-desktop ── stage4-desktop-xfce    (optional, OpenRC)
 ```
 
@@ -13,5 +14,8 @@ stage1 ─┬─ stage3 ── stage4                         (console system)
 - PS3 packages come from [ps3-gentoo-overlay](https://github.com/damiandudycz/ps3-gentoo-overlay), which is added to
   Catalyst Lab when the project is created.
 
-Not included yet: installation ISO (livecd-stage2). It needs kernel options of Catalyst (`boot/kernel/<name>/...`),
-which Catalyst Lab doesn't support in stages yet.
+- Installation ISO (optional, OpenRC): live system with PS3 kernel built by Catalyst (`boot/kernel: ps3`, distribution
+  kernel with dracut live initramfs), PS3 Gentoo installer and tools of Gentoo minimal installation ISO. petitboot
+  loads it with `yaboot.conf` on the ISO, which uses volume label `Gentoo-ps3`.
+
+Requires Catalyst Lab 0.3.0 or newer.
