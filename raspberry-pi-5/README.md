@@ -21,7 +21,7 @@ cpupower and sudo, with boot configuration in `/boot`.
 | Init system | OpenRC, systemd (services are enabled automatically with OpenRC only) |
 | CPU optimization | Tuned for Cortex-A76, generic arm64 |
 | Link-time optimization (LTO) | Off by default. Includes workarounds for packages that fail with LTO |
-| Kernel | Prebuilt (`raspberrypi-image`, default) or compiled in every stage4 from `raspberrypi-sources` with `bcm2712_defconfig`, installed like the prebuilt one (`kernel_2712.img`, device trees, overlays). Sources stay in the system, `build-raspberrypi-kernel` builds them again |
+| Kernel | Prebuilt (`raspberrypi-image`, default) or compiled by Catalyst as kernel `rpi` of every stage4 (genkernel, `raspberrypi-sources` with `bcm2712_defconfig`), installed like the prebuilt one (`kernel_2712.img`, device trees, overlays). Sources stay in the system, `build-raspberrypi-kernel` builds them again |
 | Desktops | GNOME, KDE Plasma (any of them, each gets its own stage4) |
 | CPU frequency | 2.4 GHz (stock), 2.6 GHz, 2.8 GHz (needs good cooling) |
 | Serial console | UART enabled in `config.txt` |

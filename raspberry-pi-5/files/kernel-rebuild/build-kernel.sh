@@ -1,9 +1,9 @@
 #!/bin/bash
 # Compiles Raspberry Pi 5 kernel from sys-kernel/raspberrypi-sources and installs it like sys-kernel/raspberrypi-image:
 # kernel_2712.img (loaded by firmware), device trees and overlays in /boot, modules in /lib/modules. Steps of Raspberry
-# Pi documentation (https://www.raspberrypi.com/documentation/computers/linux_kernel.html#building). Run by catalyst
-# as fsscript of stage4, after its packages are installed. To build new sources later (after update of
-# raspberrypi-sources), run it again on Raspberry Pi.
+# Pi documentation (https://www.raspberrypi.com/documentation/computers/linux_kernel.html#building). Installed as
+# /usr/local/sbin/build-raspberrypi-kernel, run it on Raspberry Pi to build kernel from new sources (after update of
+# raspberrypi-sources).
 set -euo pipefail
 
 SOURCES=$(ls -d /usr/src/linux-*raspberrypi* 2> /dev/null | sort -V | tail -n 1)
@@ -25,5 +25,3 @@ cp "$BUILD"/arch/arm64/boot/dts/overlays/*.dtb* /boot/overlays/
 
 echo "Installed kernel $(make -s -C "$SOURCES" O="$BUILD" kernelrelease) as /boot/kernel_2712.img"
 rm -rf "$BUILD"
-# Copy installed in system (root overlay of stage) can be run directly.
-[ ! -f /usr/local/sbin/build-raspberrypi-kernel ] || chmod 755 /usr/local/sbin/build-raspberrypi-kernel
