@@ -193,7 +193,6 @@ id = "development"
 title = "Development tools"
 description = "git, eselect-repository, distcc and kernel headers."
 stages = ["stage4", "stage4-desktop"]
-default_stages = ["stage4"]
 [groups.arguments]
 stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/distcc", "sys-kernel/linux-headers"]
 
@@ -202,7 +201,6 @@ id = "docker"
 title = "Docker"
 description = "Container engine, started at boot."
 stages = ["stage4", "stage4-desktop"]
-default_stages = ["stage4"]
 [groups.arguments]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]
 stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
