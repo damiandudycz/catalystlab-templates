@@ -10,7 +10,7 @@ stage1 ─┬─ stage3 ─┬─ stage4                       (console system)
 
 - Stages are built for Cell CPU (`cell` subarch, AltiVec), optionally with LTO.
 - stage4 includes PS3 kernel (`sys-kernel/gentoo-kernel-ps3`), video memory swap (`ps3vram-swap`) and `ps3pf_utils`,
-  NetworkManager, SSH and NTP. Optional zram swap, development tools and PS3 Gentoo installer.
+  NetworkManager, SSH and NTP. Optional zram swap and development tools.
 - PS3 packages come from [ps3-gentoo-overlay](https://github.com/damiandudycz/ps3-gentoo-overlay), which is added to
   Catalyst Lab when the project is created.
 

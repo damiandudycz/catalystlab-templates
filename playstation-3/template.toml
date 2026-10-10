@@ -198,15 +198,6 @@ stages = ["stage4", "stage4-desktop"]
 [groups.arguments]
 stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/distcc", "sys-kernel/linux-headers"]
 
-[[groups]]
-id = "installer"
-title = "PS3 Gentoo installer"
-description = "ps3-gentoo-installer, for installing Gentoo on other PlayStation 3 consoles."
-stages = ["stage4", "stage4-desktop"]
-default_stages = ["stage4"]
-[groups.arguments]
-stage4_packages = ["sys-apps/ps3-gentoo-installer"]
-
 # Installation ISO: PS3 devices and kernel installation (like stage4), boot menu of petitboot, zram and memory settings
 # of live system.
 [[files]]
