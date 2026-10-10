@@ -1,0 +1,163 @@
+format = 1
+min_app_version = "0.2.0"
+name = "PlayStation 3"
+description = "Gentoo for PlayStation 3 (Cell CPU): stages with PS3 kernel and tools from ps3-gentoo-overlay, optional Xfce desktop."
+architecture = "ppc64"
+groups_title = "Software"
+
+[[overlays]]
+id = "ps3"
+name = "ps3-gentoo-overlay"
+url = "https://github.com/damiandudycz/ps3-gentoo-overlay.git"
+
+[[variables]]
+id = "init"
+title = "Init system"
+description = "Services of stage4 are enabled automatically with OpenRC."
+default = "openrc"
+options = [
+    { value = "openrc", title = "OpenRC" },
+    { value = "systemd", title = "systemd" },
+]
+
+[[variables]]
+id = "optimization"
+title = "CPU optimization"
+default = "cell"
+options = [
+    { value = "cell", title = "Tuned for Cell" },
+    { value = "lto", title = "Tuned for Cell, with LTO" },
+]
+
+[[variables]]
+id = "desktop"
+title = "Desktop"
+description = "Xfce stages are built next to the console stage4, from desktop stage3."
+default = "none"
+when = "init == 'openrc'"
+options = [
+    { value = "none", title = "None" },
+    { value = "xfce", title = "Xfce" },
+]
+
+[[variables]]
+id = "zram"
+title = "zram swap"
+description = "Compressed swap in memory, PlayStation 3 has 256 MB of memory. Video memory is also used as swap (ps3vram-swap)."
+default = "64"
+options = [
+    { value = "off", title = "Disabled" },
+    { value = "64", title = "64 MB" },
+    { value = "128", title = "128 MB" },
+]
+
+[values]
+openrc = "{{ init == 'openrc' }}"
+lto = "{{ optimization == 'lto' }}"
+with_desktop = "{{ desktop == 'xfce' }}"
+common_flags = "-O2 -pipe -mcpu=cell -mtune=cell -mabi=altivec -mno-string -mno-update -mno-multiple{{ ' -flto -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing' if lto else '' }}"
+stage1_name = "stage1-{{ init }}"
+stage4_name = "stage4-{{ init }}"
+desktop_stage3_name = "stage3-desktop-{{ init }}"
+desktop_stage4_name = "stage4-desktop-xfce-{{ init }}"
+base_packages = "{{ ['app-admin/sudo', 'app-misc/ps3pf_utils', 'app-portage/gentoolkit', 'net-misc/networkmanager', 'net-misc/ntp', 'sys-apps/ps3vram-swap', 'sys-kernel/gentoo-kernel-ps3'] + (['app-admin/sysklogd'] if openrc else []) + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
+base_services = "{{ (['ps3vram-swap|boot', 'dbus|default', 'NetworkManager|default', 'sysklogd|default', 'ntpd|default', 'ntp-client|default', 'sshd|default'] + ([] if zram == 'off' else ['zram-init|boot'])) if openrc else [] }}"
+
+[[stages]]
+id = "stage1"
+name = "{{ stage1_name }}"
+target = "stage1"
+releng_template = "stage1-{{ init }}-23.spec"
+[stages.arguments]
+subarch = "cell"
+common_flags = "{{ common_flags }}"
+catalyst_use = "{{ ['lto'] if lto else [] }}"
+rel_type = "{{ '23.0-ps3-lto' if lto else '23.0-ps3' }}"
+repos = [{ type = "Overlay", value = "ps3" }]
+
+[[stages]]
+id = "stage3"
+parent = "stage1"
+name = "stage3-{{ init }}"
+target = "stage3"
+releng_template = "stage3-{{ init }}-23.spec"
+
+[[stages]]
+id = "stage4"
+parent = "stage3"
+name = "{{ stage4_name }}"
+target = "stage4"
+[stages.arguments]
+stage4_use = ["ps3", "dist-kernel"]
+stage4_packages = "{{ base_packages }}"
+stage4_rcadd = "{{ base_services }}"
+stage4_empty = ["/var/cache/distfiles"]
+stage4_rm = ["/root/.bash_history"]
+
+[[stages]]
+id = "stage3-desktop"
+parent = "stage1"
+name = "{{ desktop_stage3_name }}"
+target = "stage3"
+releng_template = "stage3-openrc-23.spec"
+when = "with_desktop"
+[stages.arguments]
+profile = { type = "PortageProfile", value = { path = "default/linux/ppc64/23.0/desktop", stability = "stable", repo = "gentoo" } }
+version_stamp = "desktop-openrc-@TIMESTAMP@"
+
+[[stages]]
+id = "stage4-desktop"
+parent = "stage3-desktop"
+name = "{{ desktop_stage4_name }}"
+target = "stage4"
+when = "with_desktop"
+[stages.arguments]
+version_stamp = "desktop-xfce-openrc-@TIMESTAMP@"
+stage4_use = ["ps3", "dist-kernel", "-qt5", "-qt6"]
+stage4_packages = "{{ base_packages + ['x11-base/xorg-server', 'x11-apps/xdm', 'xfce-base/xfce4-meta'] }}"
+stage4_rcadd = "{{ base_services + ['display-manager|default'] }}"
+stage4_empty = ["/var/cache/distfiles"]
+stage4_rm = ["/root/.bash_history"]
+
+# Cell CPU features and PowerPC 64 ABI fix of OpenSSL, inherited by all stages (parent overlay).
+[[files]]
+source = "files/stage1"
+destination = "stages/{{ stage1_name }}"
+
+# PS3 tools, input and video devices, kernel installation and zram.
+[[files]]
+source = "files/stage4"
+destination = "stages/{{ stage4_name }}"
+
+[[files]]
+source = "files/stage4"
+destination = "stages/{{ desktop_stage4_name }}"
+when = "with_desktop"
+
+[[files]]
+source = "files/desktop-stage3"
+destination = "stages/{{ desktop_stage3_name }}"
+when = "with_desktop"
+
+[[files]]
+source = "files/desktop"
+destination = "stages/{{ desktop_stage4_name }}"
+when = "with_desktop"
+
+[[groups]]
+id = "development"
+title = "Development tools"
+description = "git, eselect-repository, distcc and kernel headers."
+default = true
+stages = ["stage4", "stage4-desktop"]
+[groups.arguments]
+stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/distcc", "sys-kernel/linux-headers"]
+
+[[groups]]
+id = "installer"
+title = "PS3 Gentoo installer"
+description = "ps3-gentoo-installer, for installing Gentoo on other PlayStation 3 consoles."
+stages = ["stage4", "stage4-desktop"]
+default_stages = ["stage4"]
+[groups.arguments]
+stage4_packages = ["sys-apps/ps3-gentoo-installer"]
