@@ -56,6 +56,13 @@ default = false
 when = "architecture == 'ppc64le'"
 
 [[variables]]
+id = "lto"
+title = "Link-time optimization (LTO)"
+description = "Programs can be faster and smaller, but builds take longer and some packages may fail to build."
+type = "boolean"
+default = false
+
+[[variables]]
 id = "init"
 title = "Init system"
 default = "openrc"
@@ -89,6 +96,12 @@ spec_flavor = "{{ init + ('-power9le' if power9 else '') }}"
 spec_prefix = "{{ 'hardfloat-' if hardfloat else '' }}"
 iso_suffix = "{{ '-openrc' if variant == 'i486' else '' }}"
 stage4_name = "stage4-{{ init }}"
+# Release type names optimizations (eg. 23.0-power9-lto), stages without them use 23.0-default of releng specs.
+optimizations = "{{ (['power9'] if power9 else []) + (['lto'] if lto else []) }}"
+rel_type = "{{ '23.0-' + join('-', optimizations) if optimizations else '' }}"
+# Default flags of Catalyst for subarch of the spec, LTO flags are added to them.
+arm_float_abi = "{{ 'hard' if hardfloat else 'softfp' }}"
+subarch_flags = "{{ '-O2 -pipe -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=' + arm_float_abi if variant == 'armv7a' else '-O2 -pipe -march=armv6j -mfpu=vfp -mfloat-abi=' + arm_float_abi if variant == 'armv6j' else '-O2 -pipe -march=armv5te' if variant == 'armv5tel' else '-O2 -pipe -march=armv4t' if variant == 'armv4tl' else '-O2 -mcpu=ultrasparc -pipe' if architecture == 'sparc' else '-O2 -march=i686 -msse2 -mfpmath=sse -pipe' if variant == 'i686-ssemath' else '-O2 -march=i686 -pipe' if variant == 'i686' else '-O2 -march=i486 -pipe' if variant == 'i486' else '-O2 -mcpu=powerpc -mtune=powerpc -pipe' if architecture == 'ppc' else '-O2 -pipe -mcpu=power9 -mtune=power9' if power9 else '-O2 -pipe -march=z10' if architecture == 's390x' else '-O2 -pipe' }}"
 stage4_packages = "{{ ['app-portage/gentoolkit', 'net-misc/chrony'] + (['app-admin/sysklogd'] if init == 'openrc' else []) + (['net-misc/networkmanager'] if network == 'networkmanager' else ['net-misc/dhcpcd'] if network == 'dhcpcd' else []) }}"
 stage4_services = "{{ ['sysklogd|default', 'chronyd|default', 'sshd|default', 'NetworkManager|default' if network == 'networkmanager' else 'dhcpcd|default'] if init == 'openrc' else [] }}"
 
@@ -97,6 +110,10 @@ id = "stage1"
 name = "stage1-{{ init }}"
 target = "stage1"
 releng_template = "{{ spec_directory }}stage1-{{ spec_prefix }}{{ spec_flavor }}-23.spec"
+[stages.arguments]
+common_flags = "{{ subarch_flags + ' -flto -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing' if lto else None }}"
+catalyst_use = "{{ ['lto'] if lto else [] }}"
+rel_type = "{{ rel_type }}"
 
 [[stages]]
 id = "stage3"

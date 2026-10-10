@@ -19,7 +19,8 @@ cpupower and sudo, with boot configuration in `/boot`.
 | Option | Values |
 |---|---|
 | Init system | OpenRC, systemd (services are enabled automatically with OpenRC only) |
-| CPU optimization | Tuned for Cortex-A76, tuned with LTO (includes workarounds for packages that fail with LTO), generic arm64 |
+| CPU optimization | Tuned for Cortex-A76, generic arm64 |
+| Link-time optimization (LTO) | Off by default. Includes workarounds for packages that fail with LTO |
 | Desktops | GNOME, KDE Plasma (any of them, each gets its own stage4) |
 | CPU frequency | 2.4 GHz (stock), 2.6 GHz, 2.8 GHz (needs good cooling) |
 | Serial console | UART enabled in `config.txt` |
