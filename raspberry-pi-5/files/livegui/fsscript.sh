@@ -24,5 +24,5 @@ if [ -d /home/gentoo ]; then
     mkdir -p /home/gentoo/.config /home/gentoo/Desktop
     printf '[Daemon]\nAutolock=false\nLockOnResume=false\n' > /home/gentoo/.config/kscreenlockerrc
     printf '[Wallet]\nEnabled=false\n' > /home/gentoo/.config/kwalletrc
-    chown -R gentoo:gentoo /home/gentoo
+    chown -R gentoo:users /home/gentoo # Primary group of live user is users (as catalyst creates it).
 fi
