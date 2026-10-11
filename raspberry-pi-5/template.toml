@@ -35,10 +35,10 @@ default = false
 id = "kernel"
 title = "Kernel"
 description = "Compiled kernel is built by Catalyst (kernel rpi of every stage4, genkernel) from Raspberry Pi kernel sources with bcm2712_defconfig, which takes long. Sources stay in the system, kernel can be built again on Raspberry Pi with /usr/local/sbin/build-raspberrypi-kernel."
-default = "prebuilt"
+default = "compiled"
 options = [
-    { value = "prebuilt", title = "Prebuilt (raspberrypi-image)" },
     { value = "compiled", title = "Compiled from sources (raspberrypi-sources)" },
+    { value = "prebuilt", title = "Prebuilt (raspberrypi-image)" },
 ]
 
 [[variables]]
