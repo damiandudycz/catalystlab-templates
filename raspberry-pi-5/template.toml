@@ -113,7 +113,7 @@ desktop_stage3_name = "stage3-desktop-{{ init }}"
 iso_stage1_name = "livecd-stage1-{{ init }}"
 iso_stage2_name = "livecd-stage2-{{ init }}"
 # Installation tools of minimal installation ISO of Gentoo releases.
-iso_packages = "{{ ['app-portage/gentoolkit', 'net-misc/ntp', 'net-misc/networkmanager', 'app-accessibility/brltty', 'app-admin/pwgen', 'app-arch/lbzip2', 'app-arch/pigz', 'app-arch/zstd', 'app-crypt/gnupg', 'app-misc/livecd-tools', 'app-portage/mirrorselect', 'app-shells/bash-completion', 'app-shells/gentoo-bashcomp', 'net-analyzer/tcptraceroute', 'net-analyzer/traceroute', 'net-misc/dhcpcd', 'net-misc/iputils', 'net-misc/openssh', 'net-misc/rdate', 'net-wireless/iw', 'net-wireless/iwd', 'net-wireless/wireless-tools', 'net-wireless/wpa_supplicant', 'sys-apps/busybox', 'sys-apps/ethtool', 'sys-apps/gptfdisk', 'sys-apps/hdparm', 'sys-apps/iproute2', 'sys-apps/memtester', 'sys-apps/sdparm', 'sys-apps/usbutils', 'sys-auth/ssh-import-id', 'sys-block/parted', 'sys-fs/btrfs-progs', 'sys-fs/cryptsetup', 'sys-fs/dosfstools', 'sys-fs/e2fsprogs', 'sys-fs/f2fs-tools', 'sys-fs/lsscsi', 'sys-fs/sysfsutils', 'sys-fs/xfsprogs', 'sys-libs/gpm', 'sys-process/lsof', 'www-client/links', 'sys-devel/bc', 'sys-devel/bison', 'sys-devel/flex'] + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
+iso_packages = "{{ ['app-portage/gentoolkit', 'net-misc/ntp', 'net-misc/networkmanager', 'app-accessibility/brltty', 'app-admin/pwgen', 'app-arch/lbzip2', 'app-arch/pigz', 'app-arch/zstd', 'app-crypt/gnupg', 'app-misc/livecd-tools', 'app-portage/mirrorselect', 'app-shells/bash-completion', 'app-shells/gentoo-bashcomp', 'net-analyzer/traceroute', 'net-misc/dhcpcd', 'net-misc/iputils', 'net-misc/openssh', 'net-misc/rdate', 'net-wireless/iw', 'net-wireless/iwd', 'net-wireless/wireless-tools', 'net-wireless/wpa_supplicant', 'sys-apps/busybox', 'sys-apps/ethtool', 'sys-apps/gptfdisk', 'sys-apps/hdparm', 'sys-apps/iproute2', 'sys-apps/memtester', 'sys-apps/sdparm', 'sys-apps/usbutils', 'sys-auth/ssh-import-id', 'sys-block/parted', 'sys-fs/btrfs-progs', 'sys-fs/cryptsetup', 'sys-fs/dosfstools', 'sys-fs/e2fsprogs', 'sys-fs/f2fs-tools', 'sys-fs/lsscsi', 'sys-fs/sysfsutils', 'sys-fs/xfsprogs', 'sys-libs/gpm', 'sys-process/lsof', 'www-client/links', 'sys-devel/bc', 'sys-devel/bison', 'sys-devel/flex'] + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
 iso_services = "{{ ([] if zram == 'off' else ['zram-init|boot']) + ['NetworkManager|default', 'ntpd|default', 'ntp-client|default'] }}"
 livegui_stage1_name = "livegui-stage1-{{ init }}"
 livegui_stage2_name = "livegui-stage2-{{ init }}"
@@ -497,6 +497,17 @@ when = "iso_gui"
 [[files]]
 source = "files/livegui/fsscript.sh"
 destination = "stages/{{ livegui_stage2_name }}/fsscript.sh"
+when = "iso_gui"
+
+# Packages of live desktop only in testing branch on arm64 (eg. gparted).
+[[files]]
+source = "files/livegui-portage"
+destination = "stages/{{ livegui_stage1_name }}/portage"
+when = "iso_gui"
+
+[[files]]
+source = "files/livegui-portage"
+destination = "stages/{{ livegui_stage2_name }}/portage"
 when = "iso_gui"
 
 [[files]]
