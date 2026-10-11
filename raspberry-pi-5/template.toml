@@ -78,6 +78,14 @@ default = false
 when = "init == 'openrc'"
 
 [[variables]]
+id = "iso_gui"
+title = "Live ISO with desktop (experimental)"
+description = "KDE Plasma live system like Gentoo LiveGUI, with installation tools and Raspberry Pi kernel compiled from sources, built from desktop stage3. Raspberry Pi firmware doesn't boot ISO images directly, the ISO is for testing."
+type = "boolean"
+default = false
+when = "init == 'openrc'"
+
+[[variables]]
 id = "zram"
 title = "zram swap"
 description = "Compressed swap in memory."
@@ -107,6 +115,11 @@ iso_stage2_name = "livecd-stage2-{{ init }}"
 # Installation tools of minimal installation ISO of Gentoo releases.
 iso_packages = "{{ ['app-portage/gentoolkit', 'net-misc/ntp', 'net-misc/networkmanager', 'app-accessibility/brltty', 'app-admin/pwgen', 'app-arch/lbzip2', 'app-arch/pigz', 'app-arch/zstd', 'app-crypt/gnupg', 'app-misc/livecd-tools', 'app-portage/mirrorselect', 'app-shells/bash-completion', 'app-shells/gentoo-bashcomp', 'net-analyzer/tcptraceroute', 'net-analyzer/traceroute', 'net-misc/dhcpcd', 'net-misc/iputils', 'net-misc/openssh', 'net-misc/rdate', 'net-wireless/iw', 'net-wireless/iwd', 'net-wireless/wireless-tools', 'net-wireless/wpa_supplicant', 'sys-apps/busybox', 'sys-apps/ethtool', 'sys-apps/gptfdisk', 'sys-apps/hdparm', 'sys-apps/iproute2', 'sys-apps/memtester', 'sys-apps/sdparm', 'sys-apps/usbutils', 'sys-auth/ssh-import-id', 'sys-block/parted', 'sys-fs/btrfs-progs', 'sys-fs/cryptsetup', 'sys-fs/dosfstools', 'sys-fs/e2fsprogs', 'sys-fs/f2fs-tools', 'sys-fs/lsscsi', 'sys-fs/sysfsutils', 'sys-fs/xfsprogs', 'sys-libs/gpm', 'sys-process/lsof', 'www-client/links', 'sys-devel/bc', 'sys-devel/bison', 'sys-devel/flex'] + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
 iso_services = "{{ ([] if zram == 'off' else ['zram-init|boot']) + ['NetworkManager|default', 'ntpd|default', 'ntp-client|default'] }}"
+livegui_stage1_name = "livegui-stage1-{{ init }}"
+livegui_stage2_name = "livegui-stage2-{{ init }}"
+# KDE Plasma with basic applications (Gentoo LiveGUI has many more, which take long to build) and installation tools.
+livegui_packages = "{{ iso_packages + ['kde-plasma/plasma-meta', 'x11-misc/sddm', 'kde-apps/konsole', 'kde-apps/dolphin', 'kde-apps/kate', 'www-client/firefox-bin', 'sys-block/gparted', 'app-admin/sudo', 'app-editors/nano', 'app-misc/tmux', 'sys-apps/pciutils', 'sys-process/htop'] }}"
+livegui_services = "{{ ([] if zram == 'off' else ['zram-init|boot']) + ['udev|sysinit', 'udev-mount|sysinit', 'elogind|boot', 'dbus|default', 'NetworkManager|default', 'display-manager|default'] }}"
 gnome_stage4_name = "stage4-gnome-{{ init }}"
 plasma_stage4_name = "stage4-plasma-{{ init }}"
 desktop_profile_suffix = "{{ '/systemd' if init == 'systemd' else '' }}"
@@ -158,7 +171,7 @@ parent = "stage1"
 name = "{{ desktop_stage3_name }}"
 target = "stage3"
 releng_template = "stage3d-{{ init }}-23.spec"
-when = "with_desktop"
+when = "with_desktop or iso_gui"
 
 [[stages]]
 id = "stage4-gnome"
@@ -228,6 +241,42 @@ livecd_rcadd = "{{ iso_services }}"
 livecd_unmerge = ["app-portage/gentoolkit", "app-admin/eselect", "app-admin/eselect-ctags", "app-admin/eselect-vi", "app-admin/perl-cleaner", "app-admin/python-updater", "app-arch/cpio", "dev-libs/gmp", "dev-libs/libxml2", "dev-libs/mpfr", "dev-python/pycrypto", "dev-util/pkgconfig", "dev-util/pkgconf", "perl-core/PodParser", "perl-core/Test-Harness", "sys-apps/debianutils", "sys-apps/diffutils", "sys-apps/groff", "sys-apps/man-db", "sys-apps/man-pages", "sys-apps/miscfiles", "sys-apps/sandbox", "sys-apps/texinfo", "sys-devel/autoconf", "sys-devel/autoconf-wrapper", "sys-devel/automake", "sys-devel/automake-wrapper", "sys-devel/binutils", "sys-devel/binutils-config", "sys-devel/bison", "sys-devel/flex", "sys-devel/gcc", "sys-devel/gcc-config", "sys-devel/gettext", "sys-devel/gnuconfig", "sys-devel/libtool", "sys-devel/m4", "sys-devel/make", "sys-devel/patch", "sys-libs/db", "sys-libs/gdbm", "sys-kernel/genkernel", "sys-kernel/linux-headers"]
 livecd_empty = ["/boot", "/etc/cron.daily", "/etc/cron.hourly", "/etc/cron.monthly", "/etc/cron.weekly", "/etc/logrotate.d", "/etc/modules.autoload.d", "/etc/rsync", "/etc/runlevels/single", "/etc/skel", "/usr/lib/dev-state", "/usr/lib/udev-state", "/usr/lib64/dev-state", "/usr/lib64/udev-state", "/root/.ccache", "/tmp", "/usr/include", "/usr/lib64/X11/config", "/usr/lib64/X11/doc", "/usr/lib64/X11/etc", "/usr/lib64/awk", "/usr/lib64/ccache", "/usr/lib64/gcc-config", "/usr/lib64/nfs", "/usr/lib64/perl5/site_perl", "/usr/lib64/portage", "/usr/local", "/usr/portage", "/usr/aarch64*-unknown-linux-gnu", "/usr/share/aclocal", "/usr/share/baselayout", "/usr/share/binutils-data", "/usr/share/consolefonts/partialfonts", "/usr/share/consoletrans", "/usr/share/dict", "/usr/share/doc", "/usr/share/emacs", "/usr/share/et", "/usr/share/gcc-data", "/usr/share/genkernel", "/usr/share/gettext", "/usr/share/glib-2.0", "/usr/share/gnuconfig", "/usr/share/gtk-doc", "/usr/share/i18n", "/usr/share/info", "/usr/share/lcms", "/usr/share/libtool", "/usr/share/locale", "/usr/share/man", "/usr/share/rfc", "/usr/share/ss", "/usr/share/state", "/usr/share/texinfo", "/usr/share/unimaps", "/usr/share/zoneinfo", "/usr/src", "/var/cache", "/var/empty", "/var/lib/portage", "/var/log", "/var/spool", "/var/state", "/var/tmp"]
 livecd_rm = ["/boot/System*", "/boot/initr*", "/boot/kernel*", "/etc/*-", "/etc/*.old", "/etc/default/audioctl", "/etc/dispatch-conf.conf", "/etc/env.d/05binutils", "/etc/env.d/05gcc", "/etc/etc-update.conf", "/etc/hosts.bck", "/etc/issue*", "/etc/genkernel.conf", "/etc/make.conf*", "/etc/make.globals", "/etc/make.profile", "/etc/man.conf", "/etc/resolv.conf", "/usr/lib*/*.a", "/usr/lib*/*.la", "/usr/lib*/cpp", "/root/.bash_history", "/root/.viminfo", "/usr/bin/*.static", "/usr/bin/fsck.cramfs", "/usr/bin/fsck.minix", "/usr/bin/mkfs.bfs", "/usr/bin/mkfs.cramfs", "/usr/bin/mkfs.minix", "/usr/bin/addr2line", "/usr/bin/ar", "/usr/bin/as", "/usr/bin/audioctl", "/usr/bin/c++*", "/usr/bin/cc", "/usr/bin/cjpeg", "/usr/bin/cpp", "/usr/bin/djpeg", "/usr/bin/ebuild", "/usr/bin/egencache", "/usr/bin/emerge", "/usr/bin/emerge-webrsync", "/usr/bin/emirrordist", "/usr/bin/elftoaout", "/usr/bin/f77", "/usr/bin/g++*", "/usr/bin/g77", "/usr/bin/gcc*", "/usr/bin/genkernel", "/usr/bin/gprof", "/usr/bin/jpegtran", "/usr/bin/ld", "/usr/bin/libpng*", "/usr/bin/nm", "/usr/bin/objcopy", "/usr/bin/objdump", "/usr/bin/piggyback*", "/usr/bin/portageq", "/usr/bin/ranlib", "/usr/bin/readelf", "/usr/bin/size", "/usr/bin/aarch64*-unknown-linux-gnu-*", "/usr/bin/strings", "/usr/bin/strip", "/usr/bin/tbz2tool", "/usr/bin/xpak", "/usr/bin/yacc", "/usr/lib*/perl5/site_perl", "/usr/lib*/gcc-lib/*/*/libgcj*", "/usr/bin/archive-conf", "/usr/bin/dispatch-conf", "/usr/bin/emaint", "/usr/bin/env-update", "/usr/bin/etc-update", "/usr/bin/fb*", "/usr/bin/fixpackages", "/usr/bin/quickpkg", "/usr/bin/regenworld", "/usr/share/consolefonts/1*", "/usr/share/consolefonts/7*", "/usr/share/consolefonts/8*", "/usr/share/consolefonts/9*", "/usr/share/consolefonts/A*", "/usr/share/consolefonts/C*", "/usr/share/consolefonts/E*", "/usr/share/consolefonts/G*", "/usr/share/consolefonts/L*", "/usr/share/consolefonts/M*", "/usr/share/consolefonts/R*", "/usr/share/consolefonts/a*", "/usr/share/consolefonts/c*", "/usr/share/consolefonts/dr*", "/usr/share/consolefonts/g*", "/usr/share/consolefonts/i*", "/usr/share/consolefonts/k*", "/usr/share/consolefonts/l*", "/usr/share/consolefonts/r*", "/usr/share/consolefonts/s*", "/usr/share/consolefonts/t*", "/usr/share/consolefonts/v*", "/usr/share/misc/*.old"]
+[stages.arguments.boot_kernels.rpi]
+sources = "sys-kernel/raspberrypi-sources"
+config = "@STAGE_DIR@/kernel.config"
+
+# Live ISO with desktop (experimental): KDE Plasma live system like Gentoo LiveGUI (releng livegui specs), from
+# desktop stage3, with the same kernel as installation ISO.
+[[stages]]
+id = "livegui-stage1"
+parent = "stage3-desktop"
+name = "{{ livegui_stage1_name }}"
+target = "livecd_stage1"
+when = "iso_gui"
+[stages.arguments]
+profile = { type = "PortageProfile", value = { path = "default/linux/arm64/23.0/desktop/plasma", stability = "stable", repo = "gentoo" } }
+version_stamp = "plasma-@TIMESTAMP@"
+livecd_use = ["accessibility", "compile-locales", "fbcon", "livecd", "networkmanager", "pulseaudio", "python"]
+livecd_packages = "{{ livegui_packages }}"
+
+[[stages]]
+id = "livegui-stage2"
+parent = "livegui-stage1"
+name = "{{ livegui_stage2_name }}"
+target = "livecd_stage2"
+when = "iso_gui"
+[stages.arguments]
+boot_kernel = ["rpi"]
+livecd_type = "gentoo-release-livecd"
+livecd_bootargs = "nodhcp"
+livecd_depclean = "no"
+livecd_fstype = "squashfs"
+livecd_volid = "Gentoo-rpi5-livegui"
+livecd_iso = "livegui-rpi5-@TIMESTAMP@.iso"
+livecd_fsscript = "@STAGE_DIR@/fsscript.sh"
+livecd_rcadd = "{{ livegui_services }}"
+livecd_unmerge = ["net-misc/netifrc"]
+livecd_empty = ["/var/db/repos", "/usr/src"]
 [stages.arguments.boot_kernels.rpi]
 sources = "sys-kernel/raspberrypi-sources"
 config = "@STAGE_DIR@/kernel.config"
@@ -402,3 +451,60 @@ when = "iso"
 source = "files/zram"
 destination = "stages/{{ iso_stage2_name }}/root_overlay"
 when = "iso and zram != 'off'"
+
+# Live ISO with desktop: Raspberry Pi devices and desktop settings (and LTO workarounds) in both stages, kernel
+# configuration and sources in stage2, live system setup (fsscript), Plasma display manager and zram.
+[[files]]
+source = "files/stage4/portage"
+destination = "stages/{{ livegui_stage1_name }}/portage"
+when = "iso_gui"
+
+[[files]]
+source = "files/desktop/portage"
+destination = "stages/{{ livegui_stage1_name }}/portage"
+when = "iso_gui"
+
+[[files]]
+source = "files/lto-workarounds"
+destination = "stages/{{ livegui_stage1_name }}/portage"
+when = "iso_gui and lto"
+
+[[files]]
+source = "files/lto-workarounds-tuned"
+destination = "stages/{{ livegui_stage1_name }}/portage"
+when = "iso_gui and lto and tuned"
+
+[[files]]
+source = "files/stage4/portage"
+destination = "stages/{{ livegui_stage2_name }}/portage"
+when = "iso_gui"
+
+[[files]]
+source = "files/desktop/portage"
+destination = "stages/{{ livegui_stage2_name }}/portage"
+when = "iso_gui"
+
+[[files]]
+source = "files/kernel-sources/kernel.config"
+destination = "stages/{{ livegui_stage2_name }}/kernel.config"
+when = "iso_gui"
+
+[[files]]
+source = "files/kernel-sources/portage"
+destination = "stages/{{ livegui_stage2_name }}/portage"
+when = "iso_gui"
+
+[[files]]
+source = "files/livegui/fsscript.sh"
+destination = "stages/{{ livegui_stage2_name }}/fsscript.sh"
+when = "iso_gui"
+
+[[files]]
+source = "files/desktop-plasma/root_overlay"
+destination = "stages/{{ livegui_stage2_name }}/root_overlay"
+when = "iso_gui"
+
+[[files]]
+source = "files/zram"
+destination = "stages/{{ livegui_stage2_name }}/root_overlay"
+when = "iso_gui and zram != 'off'"
