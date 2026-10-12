@@ -113,8 +113,8 @@ desktop_stage3_name = "stage3-desktop-{{ init }}"
 iso_stage1_name = "livecd-stage1-{{ init }}"
 iso_stage2_name = "livecd-stage2-{{ init }}"
 # Installation tools of minimal installation ISO of Gentoo releases.
-iso_packages = "{{ ['app-portage/gentoolkit', 'net-misc/ntp', 'net-misc/networkmanager', 'app-accessibility/brltty', 'app-admin/pwgen', 'app-arch/lbzip2', 'app-arch/pigz', 'app-arch/zstd', 'app-crypt/gnupg', 'app-misc/livecd-tools', 'app-portage/mirrorselect', 'app-shells/bash-completion', 'app-shells/gentoo-bashcomp', 'net-analyzer/traceroute', 'net-misc/dhcpcd', 'net-misc/iputils', 'net-misc/openssh', 'net-misc/rdate', 'net-wireless/iw', 'net-wireless/iwd', 'net-wireless/wireless-tools', 'net-wireless/wpa_supplicant', 'sys-apps/busybox', 'sys-apps/ethtool', 'sys-apps/gptfdisk', 'sys-apps/hdparm', 'sys-apps/iproute2', 'sys-apps/memtester', 'sys-apps/sdparm', 'sys-apps/usbutils', 'sys-auth/ssh-import-id', 'sys-block/parted', 'sys-fs/btrfs-progs', 'sys-fs/cryptsetup', 'sys-fs/dosfstools', 'sys-fs/e2fsprogs', 'sys-fs/f2fs-tools', 'sys-fs/lsscsi', 'sys-fs/sysfsutils', 'sys-fs/xfsprogs', 'sys-libs/gpm', 'sys-process/lsof', 'www-client/links', 'sys-devel/bc', 'sys-devel/bison', 'sys-devel/flex'] + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
-iso_services = "{{ ([] if zram == 'off' else ['zram-init|boot']) + ['NetworkManager|default', 'ntpd|default', 'ntp-client|default'] }}"
+iso_packages = "{{ ['app-portage/gentoolkit', 'net-misc/chrony', 'net-misc/networkmanager', 'app-accessibility/brltty', 'app-admin/pwgen', 'app-arch/lbzip2', 'app-arch/pigz', 'app-arch/zstd', 'app-crypt/gnupg', 'app-misc/livecd-tools', 'app-portage/mirrorselect', 'app-shells/bash-completion', 'app-shells/gentoo-bashcomp', 'net-analyzer/traceroute', 'net-misc/dhcpcd', 'net-misc/iputils', 'net-misc/openssh', 'net-misc/rdate', 'net-wireless/iw', 'net-wireless/iwd', 'net-wireless/wireless-tools', 'net-wireless/wpa_supplicant', 'sys-apps/busybox', 'sys-apps/ethtool', 'sys-apps/gptfdisk', 'sys-apps/hdparm', 'sys-apps/iproute2', 'sys-apps/memtester', 'sys-apps/sdparm', 'sys-apps/usbutils', 'sys-auth/ssh-import-id', 'sys-block/parted', 'sys-fs/btrfs-progs', 'sys-fs/cryptsetup', 'sys-fs/dosfstools', 'sys-fs/e2fsprogs', 'sys-fs/f2fs-tools', 'sys-fs/lsscsi', 'sys-fs/sysfsutils', 'sys-fs/xfsprogs', 'sys-libs/gpm', 'sys-process/lsof', 'www-client/links', 'sys-devel/bc', 'sys-devel/bison', 'sys-devel/flex'] + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
+iso_services = "{{ ([] if zram == 'off' else ['zram-init|boot']) + ['NetworkManager|default', 'chronyd|default'] }}"
 livegui_stage1_name = "livegui-stage1-{{ init }}"
 livegui_stage2_name = "livegui-stage2-{{ init }}"
 # KDE Plasma with basic applications (Gentoo LiveGUI has many more, which take long to build) and installation tools.
@@ -128,8 +128,8 @@ compiled_kernel = "{{ kernel == 'compiled' }}"
 kernel_packages = "{{ ['sys-devel/bc', 'sys-devel/bison', 'sys-devel/flex'] if compiled_kernel else ['sys-kernel/raspberrypi-image'] }}"
 # Installs built kernel for firmware (kernel_2712.img, device trees, overlays) and keeps its sources in world.
 kernel_fsscript = "{{ '@STAGE_DIR@/install-kernel.sh' if compiled_kernel else None }}"
-base_packages = "{{ ['app-admin/sudo', 'app-portage/gentoolkit', 'net-misc/networkmanager', 'net-misc/ntp', 'sys-power/cpupower'] + kernel_packages + (['app-admin/sysklogd'] if openrc else []) + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
-base_services = "{{ (['cpupower|boot', 'dbus|default', 'NetworkManager|default', 'sysklogd|default', 'ntpd|default', 'ntp-client|default', 'sshd|default'] + ([] if zram == 'off' else ['zram-init|boot'])) if openrc else [] }}"
+base_packages = "{{ ['app-admin/sudo', 'app-portage/gentoolkit', 'net-misc/networkmanager', 'net-misc/chrony', 'sys-power/cpupower'] + kernel_packages + (['app-admin/sysklogd'] if openrc else []) + ([] if zram == 'off' else ['sys-block/zram-init']) }}"
+base_services = "{{ (['cpupower|boot', 'dbus|default', 'NetworkManager|default', 'sysklogd|default', 'chronyd|default', 'sshd|default'] + ([] if zram == 'off' else ['zram-init|boot'])) if openrc else [] }}"
 
 [[stages]]
 id = "stage1"
