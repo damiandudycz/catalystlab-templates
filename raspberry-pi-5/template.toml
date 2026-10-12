@@ -52,6 +52,13 @@ options = [
 ]
 
 [[variables]]
+id = "gnome_customizations"
+title = "GNOME customizations"
+description = "Add a separate customized GNOME stage4 with system-wide Flatpak apps, GNOME Shell extensions, and your default PaperWM and Dash to Dock settings."
+type = "boolean"
+default = false
+
+[[variables]]
 id = "overclock"
 title = "CPU frequency"
 description = "Overclocking needs Active Cooler or other good cooling."
@@ -201,7 +208,7 @@ id = "stage4-gnome-extras"
 parent = "stage4-gnome"
 name = "{{ gnome_extras_stage4_name }}"
 target = "stage4"
-when = "'gnome' in desktop"
+when = "'gnome' in desktop and gnome_customizations"
 [stages.arguments]
 stage4_packages = ["@parent", "sys-apps/flatpak", "net-misc/curl", "app-arch/unzip"]
 stage4_fsscript = "@STAGE_DIR@/install-gnome-extras.sh"
@@ -362,12 +369,12 @@ when = "'gnome' in desktop"
 [[files]]
 source = "files/gnome-extras/install-gnome-extras.sh"
 destination = "stages/{{ gnome_extras_stage4_name }}/install-gnome-extras.sh"
-when = "'gnome' in desktop"
+when = "'gnome' in desktop and gnome_customizations"
 
 [[files]]
 source = "files/gnome-extras/root_overlay"
 destination = "stages/{{ gnome_extras_stage4_name }}/root_overlay"
-when = "'gnome' in desktop"
+when = "'gnome' in desktop and gnome_customizations"
 
 [[files]]
 source = "files/lto-workarounds"
