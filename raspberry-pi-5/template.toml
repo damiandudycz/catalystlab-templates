@@ -199,7 +199,7 @@ name = "{{ gnome_extras_stage4_name }}"
 target = "stage4"
 when = "'gnome' in desktop and 'gnome_customizations' in extra_stages"
 [stages.arguments]
-stage4_packages = ["@parent", "sys-apps/flatpak", "net-misc/curl", "app-arch/unzip"]
+stage4_packages = ["sys-apps/flatpak", "net-misc/curl", "app-arch/unzip"]
 version_stamp = "gnome-customized-{{ init }}-@TIMESTAMP@"
 stage4_fsscript = "@STAGE_DIR@/install-gnome-extras.sh"
 
