@@ -19,6 +19,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Create the system database before Flatpak starts D-Bus activated helpers that
+# read the configured dconf profile.
+dconf update
+
 flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install --system --noninteractive --assumeyes flathub \
     io.github.flattool.Warehouse \
@@ -94,6 +98,4 @@ install_extension dash-to-dock@micxgx.gmail.com
 install_extension focus@scaryrawr.github.io
 install_extension paperwm@paperwm.github.com
 
-# Compile the machine-wide GNOME defaults shipped in root_overlay.
-dconf update
 echo "Installed GNOME extras for Shell $shell_version"
