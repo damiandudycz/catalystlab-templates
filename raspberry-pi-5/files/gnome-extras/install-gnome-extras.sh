@@ -36,9 +36,44 @@ install_extension() {
     local uuid="$1"
     local archive="$tmp_dir/$uuid.zip"
     local destination="/usr/share/gnome-shell/extensions/$uuid"
-    curl --fail --location --silent --show-error \
-        "https://extensions.gnome.org/download-extension/$uuid.shell_version=$shell_version" \
-        --output "$archive"
+    local metadata="$tmp_dir/$uuid.json"
+    local download_url
+
+    echo "Resolving GNOME Shell $shell_version download for $uuid"
+    if ! curl --fail --location --silent --show-error \
+        --get "https://extensions.gnome.org/extension-info/" \
+        --data-urlencode "uuid=$uuid" \
+        --data-urlencode "shell_version=$shell_version" \
+        --output "$metadata"; then
+        echo "Could not fetch GNOME Extensions metadata for $uuid (Shell $shell_version)" >&2
+        return 1
+    fi
+    download_url=$(python3 - "$metadata" "$uuid" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as metadata_file:
+    metadata = json.load(metadata_file)
+if metadata.get("uuid") != sys.argv[2]:
+    raise SystemExit(f"Unexpected GNOME extension UUID: {metadata.get('uuid')!r}")
+url = metadata.get("download_url")
+if not url:
+    raise SystemExit(f"No compatible download for {sys.argv[2]} on this GNOME Shell version")
+print(url)
+PY
+    ) || {
+        echo "No usable GNOME Extensions download for $uuid (Shell $shell_version)" >&2
+        return 1
+    }
+    case "$download_url" in
+        https://extensions.gnome.org/*) ;;
+        /*) download_url="https://extensions.gnome.org$download_url" ;;
+        *) echo "Unexpected download URL for $uuid: $download_url" >&2; return 1 ;;
+    esac
+    if ! curl --fail --location --silent --show-error "$download_url" --output "$archive"; then
+        echo "Could not download $uuid for GNOME Shell $shell_version from $download_url" >&2
+        return 1
+    fi
     mkdir -p "$destination"
     unzip -q "$archive" -d "$destination"
     python3 - "$destination/metadata.json" "$uuid" <<'PY'
