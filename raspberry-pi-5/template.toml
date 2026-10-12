@@ -123,6 +123,7 @@ livegui_stage2_name = "livegui-stage2-{{ init }}"
 livegui_packages = "{{ iso_packages + ['kde-plasma/plasma-meta', 'x11-misc/sddm', 'kde-apps/konsole', 'kde-apps/dolphin', 'kde-apps/kate', 'www-client/firefox-bin', 'sys-block/gparted', 'app-admin/sudo', 'app-editors/nano', 'app-misc/tmux', 'sys-apps/pciutils', 'sys-process/htop'] }}"
 livegui_services = "{{ ([] if zram == 'off' else ['zram-init|boot']) + ['udev|sysinit', 'udev-mount|sysinit', 'elogind|boot', 'dbus|default', 'NetworkManager|default', 'display-manager|default'] + (['bluetooth|default'] if 'wireless' in groups else []) }}"
 gnome_stage4_name = "stage4-gnome-{{ init }}"
+gnome_extras_stage4_name = "stage4-gnome-extras-{{ init }}"
 plasma_stage4_name = "stage4-plasma-{{ init }}"
 desktop_profile_suffix = "{{ '/systemd' if init == 'systemd' else '' }}"
 compiled_kernel = "{{ kernel == 'compiled' }}"
@@ -194,6 +195,16 @@ stage4_rm = ["/root/.bash_history"]
 [stages.arguments.boot_kernels.rpi]
 sources = "{{ 'sys-kernel/raspberrypi-sources' if compiled_kernel else '' }}"
 config = "{{ '@STAGE_DIR@/kernel.config' if compiled_kernel else '' }}"
+
+[[stages]]
+id = "stage4-gnome-extras"
+parent = "stage4-gnome"
+name = "{{ gnome_extras_stage4_name }}"
+target = "stage4"
+when = "'gnome' in desktop"
+[stages.arguments]
+stage4_packages = ["@parent", "sys-apps/flatpak", "net-misc/curl", "app-arch/unzip"]
+stage4_fsscript = "@STAGE_DIR@/install-gnome-extras.sh"
 
 [[stages]]
 id = "stage4-plasma"
@@ -346,6 +357,16 @@ when = "'gnome' in desktop"
 [[files]]
 source = "files/desktop-gnome"
 destination = "stages/{{ gnome_stage4_name }}"
+when = "'gnome' in desktop"
+
+[[files]]
+source = "files/gnome-extras/install-gnome-extras.sh"
+destination = "stages/{{ gnome_extras_stage4_name }}/install-gnome-extras.sh"
+when = "'gnome' in desktop"
+
+[[files]]
+source = "files/gnome-extras/root_overlay"
+destination = "stages/{{ gnome_extras_stage4_name }}/root_overlay"
 when = "'gnome' in desktop"
 
 [[files]]
