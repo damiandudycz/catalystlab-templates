@@ -52,13 +52,6 @@ options = [
 ]
 
 [[variables]]
-id = "gnome_customizations"
-title = "GNOME customizations"
-description = "Add a separate customized GNOME stage4 with system-wide Flatpak apps, GNOME Shell extensions, and your default PaperWM and Dash to Dock settings."
-type = "boolean"
-default = false
-
-[[variables]]
 id = "overclock"
 title = "CPU frequency"
 description = "Overclocking needs Active Cooler or other good cooling."
@@ -77,20 +70,16 @@ type = "boolean"
 default = true
 
 [[variables]]
-id = "iso"
-title = "Installation ISO (experimental)"
-description = "Live ISO with installation tools and Raspberry Pi kernel compiled from sources (bcm2712_defconfig), built from console stage3. Raspberry Pi firmware doesn't boot ISO images directly, the ISO is for testing."
-type = "boolean"
-default = false
-when = "init == 'openrc'"
-
-[[variables]]
-id = "iso_gui"
-title = "Live ISO with desktop (experimental)"
-description = "KDE Plasma live system like Gentoo LiveGUI, with installation tools and Raspberry Pi kernel compiled from sources, built from desktop stage3. Raspberry Pi firmware doesn't boot ISO images directly, the ISO is for testing."
-type = "boolean"
-default = false
-when = "init == 'openrc'"
+id = "extra_stages"
+title = "Extra stages"
+description = "Select optional ISO stages or a customized GNOME stage4. Raspberry Pi firmware doesn't boot ISO images directly, so the ISO stages are experimental and intended for testing."
+type = "multiple"
+default = []
+options = [
+    { value = "iso", title = "Installation ISO (experimental)", when = "init == 'openrc'" },
+    { value = "iso_gui", title = "Live ISO with desktop (experimental)", when = "init == 'openrc'" },
+    { value = "gnome_customizations", title = "Customized GNOME stage4", when = "'gnome' in desktop" },
+]
 
 [[variables]]
 id = "zram"
@@ -181,7 +170,7 @@ parent = "stage1"
 name = "{{ desktop_stage3_name }}"
 target = "stage3"
 releng_template = "stage3d-{{ init }}-23.spec"
-when = "with_desktop or iso_gui"
+when = "with_desktop or 'iso_gui' in extra_stages"
 
 [[stages]]
 id = "stage4-gnome"
@@ -208,7 +197,7 @@ id = "stage4-gnome-extras"
 parent = "stage4-gnome"
 name = "{{ gnome_extras_stage4_name }}"
 target = "stage4"
-when = "'gnome' in desktop and gnome_customizations"
+when = "'gnome' in desktop and 'gnome_customizations' in extra_stages"
 [stages.arguments]
 stage4_packages = ["@parent", "sys-apps/flatpak", "net-misc/curl", "app-arch/unzip"]
 stage4_fsscript = "@STAGE_DIR@/install-gnome-extras.sh"
@@ -242,7 +231,7 @@ parent = "stage3"
 name = "{{ iso_stage1_name }}"
 target = "livecd_stage1"
 releng_template = "installcd-stage1.spec"
-when = "iso"
+when = "'iso' in extra_stages"
 [stages.arguments]
 livecd_packages = "{{ ['@releng'] + iso_extra_packages }}"
 
@@ -252,7 +241,7 @@ parent = "livecd-stage1"
 name = "{{ iso_stage2_name }}"
 target = "livecd_stage2"
 releng_template = "installcd-stage2-minimal.spec"
-when = "iso"
+when = "'iso' in extra_stages"
 [stages.arguments]
 boot_kernel = ["rpi"]
 livecd_volid = "Gentoo-rpi5"
@@ -269,7 +258,7 @@ id = "livegui-stage1"
 parent = "stage3-desktop"
 name = "{{ livegui_stage1_name }}"
 target = "livecd_stage1"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 [stages.arguments]
 profile = { type = "PortageProfile", value = { path = "default/linux/arm64/23.0/desktop/plasma", stability = "stable", repo = "gentoo" } }
 version_stamp = "plasma-@TIMESTAMP@"
@@ -281,7 +270,7 @@ id = "livegui-stage2"
 parent = "livegui-stage1"
 name = "{{ livegui_stage2_name }}"
 target = "livecd_stage2"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 [stages.arguments]
 boot_kernel = ["rpi"]
 livecd_type = "gentoo-release-livecd"
@@ -369,12 +358,12 @@ when = "'gnome' in desktop"
 [[files]]
 source = "files/gnome-extras/install-gnome-extras.sh"
 destination = "stages/{{ gnome_extras_stage4_name }}/install-gnome-extras.sh"
-when = "'gnome' in desktop and gnome_customizations"
+when = "'gnome' in desktop and 'gnome_customizations' in extra_stages"
 
 [[files]]
 source = "files/gnome-extras/root_overlay"
 destination = "stages/{{ gnome_extras_stage4_name }}/root_overlay"
-when = "'gnome' in desktop and gnome_customizations"
+when = "'gnome' in desktop and 'gnome_customizations' in extra_stages"
 
 [[files]]
 source = "files/lto-workarounds"
@@ -459,92 +448,92 @@ stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
 [[files]]
 source = "files/stage4/portage"
 destination = "stages/{{ iso_stage1_name }}/portage"
-when = "iso"
+when = "'iso' in extra_stages"
 
 [[files]]
 source = "files/stage4/portage"
 destination = "stages/{{ iso_stage2_name }}/portage"
-when = "iso"
+when = "'iso' in extra_stages"
 
 [[files]]
 source = "files/kernel-sources/kernel.config"
 destination = "stages/{{ iso_stage2_name }}/kernel.config"
-when = "iso"
+when = "'iso' in extra_stages"
 
 [[files]]
 source = "files/kernel-sources/portage"
 destination = "stages/{{ iso_stage2_name }}/portage"
-when = "iso"
+when = "'iso' in extra_stages"
 
 [[files]]
 source = "files/zram"
 destination = "stages/{{ iso_stage2_name }}/root_overlay"
-when = "iso and zram != 'off'"
+when = "'iso' in extra_stages and zram != 'off'"
 
 # Live ISO with desktop: Raspberry Pi devices and desktop settings (and LTO workarounds) in both stages, kernel
 # configuration and sources in stage2, live system setup (fsscript), Plasma display manager and zram.
 [[files]]
 source = "files/stage4/portage"
 destination = "stages/{{ livegui_stage1_name }}/portage"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/desktop/portage"
 destination = "stages/{{ livegui_stage1_name }}/portage"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/lto-workarounds"
 destination = "stages/{{ livegui_stage1_name }}/portage"
-when = "iso_gui and lto"
+when = "'iso_gui' in extra_stages and lto"
 
 [[files]]
 source = "files/lto-workarounds-tuned"
 destination = "stages/{{ livegui_stage1_name }}/portage"
-when = "iso_gui and lto and tuned"
+when = "'iso_gui' in extra_stages and lto and tuned"
 
 [[files]]
 source = "files/stage4/portage"
 destination = "stages/{{ livegui_stage2_name }}/portage"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/desktop/portage"
 destination = "stages/{{ livegui_stage2_name }}/portage"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/kernel-sources/kernel.config"
 destination = "stages/{{ livegui_stage2_name }}/kernel.config"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/kernel-sources/portage"
 destination = "stages/{{ livegui_stage2_name }}/portage"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/livegui/fsscript.sh"
 destination = "stages/{{ livegui_stage2_name }}/fsscript.sh"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 # Packages of live desktop only in testing branch on arm64 (eg. gparted).
 [[files]]
 source = "files/livegui-portage"
 destination = "stages/{{ livegui_stage1_name }}/portage"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/livegui-portage"
 destination = "stages/{{ livegui_stage2_name }}/portage"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/desktop-plasma/root_overlay"
 destination = "stages/{{ livegui_stage2_name }}/root_overlay"
-when = "iso_gui"
+when = "'iso_gui' in extra_stages"
 
 [[files]]
 source = "files/zram"
 destination = "stages/{{ livegui_stage2_name }}/root_overlay"
-when = "iso_gui and zram != 'off'"
+when = "'iso_gui' in extra_stages and zram != 'off'"
