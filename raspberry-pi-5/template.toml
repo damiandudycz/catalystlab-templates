@@ -42,16 +42,6 @@ options = [
 ]
 
 [[variables]]
-id = "desktop"
-title = "Desktops"
-description = "Every selected desktop gets its own stage4, built from desktop stage3 next to the console stage4."
-type = "multiple"
-options = [
-    { value = "gnome", title = "GNOME" },
-    { value = "plasma", title = "KDE Plasma" },
-]
-
-[[variables]]
 id = "overclock"
 title = "CPU frequency"
 description = "Overclocking needs Active Cooler or other good cooling."
@@ -71,15 +61,27 @@ default = true
 
 [[variables]]
 id = "extra_stages"
-title = "Extra stages"
-description = "Select optional ISO stages or a customized GNOME stage4. Raspberry Pi firmware doesn't boot ISO images directly, so the ISO stages are experimental and intended for testing."
+title = "Build stages"
+section = "Extra stages"
+previous_id = "desktop"
+description = "Select GNOME or KDE Plasma stage4 builds, optional customized GNOME stage4, or experimental ISO stages. Raspberry Pi firmware doesn't boot ISO images directly, so the ISO stages are intended for testing."
 type = "multiple"
 default = []
 options = [
+    { value = "gnome", title = "GNOME stage4" },
+    { value = "plasma", title = "KDE Plasma stage4" },
     { value = "iso", title = "Installation ISO (experimental)", when = "init == 'openrc'" },
     { value = "iso_gui", title = "Live ISO with desktop (experimental)", when = "init == 'openrc'" },
-    { value = "gnome_customizations", title = "Customized GNOME stage4", when = "'gnome' in desktop" },
 ]
+
+[[variables]]
+id = "gnome_customizations"
+title = "Customized GNOME stage4"
+section = "Extra stages"
+description = "Build an additional stage4 with system-wide Flatpak applications, GNOME extensions and their default settings."
+type = "boolean"
+default = false
+when = "'gnome' in extra_stages"
 
 [[variables]]
 id = "zram"
@@ -104,7 +106,7 @@ common_flags = "{{ cpu_flags + (' -flto -Werror=odr -Werror=lto-type-mismatch -W
 hostname = "{{ replace(lower(project_name), ' ', '-') or 'raspberrypi' }}"
 stage1_name = "stage1-{{ init }}"
 stage4_name = "stage4-{{ init }}"
-with_desktop = "{{ desktop != [] }}"
+with_desktop = "{{ 'gnome' in extra_stages or 'plasma' in extra_stages }}"
 desktop_stage3_name = "stage3-desktop-{{ init }}"
 iso_stage1_name = "livecd-stage1-{{ init }}"
 iso_stage2_name = "livecd-stage2-{{ init }}"
@@ -177,7 +179,7 @@ id = "stage4-gnome"
 parent = "stage3-desktop"
 name = "{{ gnome_stage4_name }}"
 target = "stage4"
-when = "'gnome' in desktop"
+when = "'gnome' in extra_stages"
 [stages.arguments]
 profile = { type = "PortageProfile", value = { path = "default/linux/arm64/23.0/desktop/gnome{{ desktop_profile_suffix }}", stability = "stable", repo = "gentoo" } }
 version_stamp = "gnome-{{ init }}-@TIMESTAMP@"
@@ -197,7 +199,7 @@ id = "stage4-gnome-extras"
 parent = "stage4-gnome"
 name = "{{ gnome_extras_stage4_name }}"
 target = "stage4"
-when = "'gnome' in desktop and 'gnome_customizations' in extra_stages"
+when = "'gnome' in extra_stages and gnome_customizations"
 [stages.arguments]
 stage4_packages = ["sys-apps/flatpak", "net-misc/curl", "app-arch/unzip"]
 version_stamp = "gnome-customized-{{ init }}-@TIMESTAMP@"
@@ -208,7 +210,7 @@ id = "stage4-plasma"
 parent = "stage3-desktop"
 name = "{{ plasma_stage4_name }}"
 target = "stage4"
-when = "'plasma' in desktop"
+when = "'plasma' in extra_stages"
 [stages.arguments]
 profile = { type = "PortageProfile", value = { path = "default/linux/arm64/23.0/desktop/plasma{{ desktop_profile_suffix }}", stability = "stable", repo = "gentoo" } }
 version_stamp = "plasma-{{ init }}-@TIMESTAMP@"
@@ -308,22 +310,22 @@ when = "compiled_kernel"
 [[files]]
 source = "files/kernel-sources"
 destination = "stages/{{ gnome_stage4_name }}"
-when = "compiled_kernel and 'gnome' in desktop"
+when = "compiled_kernel and 'gnome' in extra_stages"
 
 [[files]]
 source = "files/kernel-rebuild/build-kernel.sh"
 destination = "stages/{{ gnome_stage4_name }}/root_overlay/usr/local/sbin/build-raspberrypi-kernel"
-when = "compiled_kernel and 'gnome' in desktop"
+when = "compiled_kernel and 'gnome' in extra_stages"
 
 [[files]]
 source = "files/kernel-sources"
 destination = "stages/{{ plasma_stage4_name }}"
-when = "compiled_kernel and 'plasma' in desktop"
+when = "compiled_kernel and 'plasma' in extra_stages"
 
 [[files]]
 source = "files/kernel-rebuild/build-kernel.sh"
 destination = "stages/{{ plasma_stage4_name }}/root_overlay/usr/local/sbin/build-raspberrypi-kernel"
-when = "compiled_kernel and 'plasma' in desktop"
+when = "compiled_kernel and 'plasma' in extra_stages"
 
 # Raspberry Pi kernel, firmware and boot configuration.
 [[files]]
@@ -339,72 +341,72 @@ when = "zram != 'off'"
 [[files]]
 source = "files/stage4"
 destination = "stages/{{ gnome_stage4_name }}"
-when = "'gnome' in desktop"
+when = "'gnome' in extra_stages"
 
 [[files]]
 source = "files/zram"
 destination = "stages/{{ gnome_stage4_name }}/root_overlay"
-when = "zram != 'off' and 'gnome' in desktop"
+when = "zram != 'off' and 'gnome' in extra_stages"
 
 [[files]]
 source = "files/desktop"
 destination = "stages/{{ gnome_stage4_name }}"
-when = "'gnome' in desktop"
+when = "'gnome' in extra_stages"
 
 [[files]]
 source = "files/desktop-gnome"
 destination = "stages/{{ gnome_stage4_name }}"
-when = "'gnome' in desktop"
+when = "'gnome' in extra_stages"
 
 [[files]]
 source = "files/gnome-extras/install-gnome-extras.sh"
 destination = "stages/{{ gnome_extras_stage4_name }}/install-gnome-extras.sh"
-when = "'gnome' in desktop and 'gnome_customizations' in extra_stages"
+when = "'gnome' in extra_stages and gnome_customizations"
 
 [[files]]
 source = "files/gnome-extras/root_overlay"
 destination = "stages/{{ gnome_extras_stage4_name }}/root_overlay"
-when = "'gnome' in desktop and 'gnome_customizations' in extra_stages"
+when = "'gnome' in extra_stages and gnome_customizations"
 
 [[files]]
 source = "files/lto-workarounds"
 destination = "stages/{{ gnome_stage4_name }}/portage"
-when = "'gnome' in desktop and lto"
+when = "'gnome' in extra_stages and lto"
 
 [[files]]
 source = "files/lto-workarounds-tuned"
 destination = "stages/{{ gnome_stage4_name }}/portage"
-when = "'gnome' in desktop and lto and tuned"
+when = "'gnome' in extra_stages and lto and tuned"
 
 [[files]]
 source = "files/stage4"
 destination = "stages/{{ plasma_stage4_name }}"
-when = "'plasma' in desktop"
+when = "'plasma' in extra_stages"
 
 [[files]]
 source = "files/zram"
 destination = "stages/{{ plasma_stage4_name }}/root_overlay"
-when = "zram != 'off' and 'plasma' in desktop"
+when = "zram != 'off' and 'plasma' in extra_stages"
 
 [[files]]
 source = "files/desktop"
 destination = "stages/{{ plasma_stage4_name }}"
-when = "'plasma' in desktop"
+when = "'plasma' in extra_stages"
 
 [[files]]
 source = "files/desktop-plasma"
 destination = "stages/{{ plasma_stage4_name }}"
-when = "'plasma' in desktop"
+when = "'plasma' in extra_stages"
 
 [[files]]
 source = "files/lto-workarounds"
 destination = "stages/{{ plasma_stage4_name }}/portage"
-when = "'plasma' in desktop and lto"
+when = "'plasma' in extra_stages and lto"
 
 [[files]]
 source = "files/lto-workarounds-tuned"
 destination = "stages/{{ plasma_stage4_name }}/portage"
-when = "'plasma' in desktop and lto and tuned"
+when = "'plasma' in extra_stages and lto and tuned"
 
 [[groups]]
 id = "wireless"
