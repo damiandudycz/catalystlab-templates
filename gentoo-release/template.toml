@@ -58,6 +58,11 @@ options = [
     { value = "x86-64-v2", title = "x86-64-v2", when = "architecture == 'amd64'" },
     { value = "x86-64-v3", title = "x86-64-v3 (AVX2)", when = "architecture == 'amd64'" },
     { value = "x86-64-v4", title = "x86-64-v4 (AVX-512)", when = "architecture == 'amd64'" },
+    { value = "znver1", title = "AMD Zen 1 (znver1)", when = "architecture == 'amd64'" },
+    { value = "znver2", title = "AMD Zen 2 (znver2)", when = "architecture == 'amd64'" },
+    { value = "znver3", title = "AMD Zen 3 (znver3)", when = "architecture == 'amd64'" },
+    { value = "znver4", title = "AMD Zen 4 (znver4)", when = "architecture == 'amd64'" },
+    { value = "znver5", title = "AMD Zen 5 (znver5)", when = "architecture == 'amd64'" },
     { value = "armv8.2-a", title = "Armv8.2-A", when = "architecture == 'arm64'" },
     { value = "armv8.4-a", title = "Armv8.4-A", when = "architecture == 'arm64'" },
     { value = "armv9-a", title = "Armv9-A", when = "architecture == 'arm64'" },
@@ -73,7 +78,7 @@ title = "Strip AVX-512 instructions for emulation"
 description = "Only enable this when building x86_64 stages under QEMU on a different architecture. Disables AVX-512 code generation to avoid instructions unsupported by the emulator."
 type = "boolean"
 default = false
-when = "architecture == 'amd64' and cpu_target == 'x86-64-v4'"
+when = "architecture == 'amd64' and cpu_target in ['x86-64-v4', 'znver4', 'znver5']"
 
 [[variables]]
 id = "power9"
@@ -130,7 +135,7 @@ rel_type = "{{ '23.0-' + join('-', optimizations) if optimizations else '' }}"
 # Default flags of Catalyst for subarch of the spec, LTO flags are added to them.
 arm_float_abi = "{{ 'hard' if hardfloat else 'softfp' }}"
 subarch_flags = "{{ '-O2 -pipe -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=' + arm_float_abi if variant == 'armv7a' else '-O2 -pipe -march=armv6j -mfpu=vfp -mfloat-abi=' + arm_float_abi if variant == 'armv6j' else '-O2 -pipe -march=armv5te' if variant == 'armv5tel' else '-O2 -pipe -march=armv4t' if variant == 'armv4tl' else '-O2 -mcpu=ultrasparc -pipe' if architecture == 'sparc' else '-O2 -march=i686 -msse2 -mfpmath=sse -pipe' if variant == 'i686-ssemath' else '-O2 -march=i686 -pipe' if variant == 'i686' else '-O2 -march=i486 -pipe' if variant == 'i486' else '-O2 -mcpu=powerpc -mtune=powerpc -pipe' if architecture == 'ppc' else '-O2 -pipe -mcpu=power9 -mtune=power9' if power9 else '-O2 -pipe -march=z10' if architecture == 's390x' else '-O2 -pipe' }}"
-cpu_target_flags = "{{ '-march=x86-64-v2' if cpu_target == 'x86-64-v2' else '-march=x86-64-v3' if cpu_target == 'x86-64-v3' else '-march=x86-64-v4' if cpu_target == 'x86-64-v4' else '-march=' + cpu_target if architecture == 'arm64' and cpu_target and cpu_target != 'generic' else '-mcpu=' + cpu_target + ' -mtune=' + cpu_target if architecture == 'ppc64' and cpu_target and cpu_target != 'generic' else '-march=' + cpu_target if architecture == 's390x' and cpu_target and cpu_target != 'generic' else '' }}"
+cpu_target_flags = "{{ '-march=x86-64-v2' if cpu_target == 'x86-64-v2' else '-march=x86-64-v3' if cpu_target == 'x86-64-v3' else '-march=x86-64-v4' if cpu_target == 'x86-64-v4' else '-march=' + cpu_target if architecture == 'amd64' and cpu_target in ['znver1', 'znver2', 'znver3', 'znver4', 'znver5'] else '-march=' + cpu_target if architecture == 'arm64' and cpu_target and cpu_target != 'generic' else '-mcpu=' + cpu_target + ' -mtune=' + cpu_target if architecture == 'ppc64' and cpu_target and cpu_target != 'generic' else '-march=' + cpu_target if architecture == 's390x' and cpu_target and cpu_target != 'generic' else '' }}"
 avx512_compat_flags = "{{ ' -mno-avx512f -mno-avx512vl -mno-avx512bw -mno-avx512dq -mno-avx512cd' if strip_avx512_for_emulation else '' }}"
 stage4_packages = "{{ ['app-portage/gentoolkit', 'net-misc/chrony'] + (['app-admin/sysklogd'] if init == 'openrc' else []) + (['net-misc/networkmanager'] if network == 'networkmanager' else ['net-misc/dhcpcd'] if network == 'dhcpcd' else []) }}"
 stage4_services = "{{ ['sysklogd|default', 'chronyd|default', 'sshd|default', 'NetworkManager|default' if network == 'networkmanager' else 'dhcpcd|default'] if init == 'openrc' else [] }}"
