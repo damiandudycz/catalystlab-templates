@@ -26,6 +26,14 @@ options = [
 ]
 
 [[variables]]
+id = "strip_avx512_for_emulation"
+title = "Strip AVX-512 instructions for emulation"
+description = "Disable AVX-512 code generation so binaries built with Zen 4 flags are less likely to use instructions unsupported by QEMU user emulation."
+type = "boolean"
+default = false
+when = "optimization == 'znver4'"
+
+[[variables]]
 id = "lto"
 title = "Link-time optimization (LTO)"
 description = "Programs can be faster and smaller, but builds take longer and some packages may fail to build."
@@ -72,9 +80,10 @@ options = [
 openrc = "{{ init == 'openrc' }}"
 znver4 = "{{ optimization == 'znver4' }}"
 cpu_flags = "{{ '-O2 -pipe -march=znver4 -mtune=znver4' if znver4 else '-O2 -pipe' }}"
+avx512_compat_flags = "{{ ' -mno-avx512f -mno-avx512vl -mno-avx512bw -mno-avx512dq -mno-avx512cd' if strip_avx512_for_emulation else '' }}"
 optimizations = "{{ (['znver4'] if znver4 else []) + (['lto'] if lto else []) }}"
 rel_type = "{{ '23.0-' + join('-', optimizations) if optimizations else '' }}"
-common_flags = "{{ cpu_flags + (' -flto -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing' if lto else '') if znver4 or lto else None }}"
+common_flags = "{{ cpu_flags + avx512_compat_flags + (' -flto -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing' if lto else '') if znver4 or lto else None }}"
 hostname = "{{ replace(lower(project_name), ' ', '-') or 'rog-ally' }}"
 stage1_name = "stage1-{{ init }}"
 stage4_name = "stage4-{{ init }}"
