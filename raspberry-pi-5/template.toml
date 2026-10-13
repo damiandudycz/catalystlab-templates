@@ -69,19 +69,11 @@ type = "multiple"
 default = []
 options = [
     { value = "gnome", title = "GNOME stage4" },
+    { value = "gnome_customized", title = "Customized GNOME stage4", when = "'gnome' in extra_stages" },
     { value = "plasma", title = "KDE Plasma stage4" },
     { value = "iso", title = "Installation ISO (experimental)", when = "init == 'openrc'" },
     { value = "iso_gui", title = "Live ISO with desktop (experimental)", when = "init == 'openrc'" },
 ]
-
-[[variables]]
-id = "gnome_customizations"
-title = "Customized GNOME stage4"
-section = "Extra stages"
-description = "Build an additional stage4 with system-wide Flatpak applications, GNOME extensions and their default settings."
-type = "boolean"
-default = false
-when = "'gnome' in extra_stages"
 
 [[variables]]
 id = "zram"
@@ -106,6 +98,7 @@ common_flags = "{{ cpu_flags + (' -flto -Werror=odr -Werror=lto-type-mismatch -W
 hostname = "{{ replace(lower(project_name), ' ', '-') or 'raspberrypi' }}"
 stage1_name = "stage1-{{ init }}"
 stage4_name = "stage4-{{ init }}"
+gnome_customizations = "{{ 'gnome_customized' in extra_stages }}"
 with_desktop = "{{ 'gnome' in extra_stages or 'plasma' in extra_stages }}"
 desktop_stage3_name = "stage3-desktop-{{ init }}"
 iso_stage1_name = "livecd-stage1-{{ init }}"
