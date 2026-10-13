@@ -1,0 +1,2 @@
+CC_FOR_BUILD="${CC} -mtune=generic"
+CFLAGS_FOR_BUILD="-O2 -march=x86-64 -mtune=generic"
