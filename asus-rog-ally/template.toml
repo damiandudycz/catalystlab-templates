@@ -363,5 +363,5 @@ stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
 # compiler flags (eg. znver4) unchanged. This applies regardless of the host architecture.
 [[files]]
 source = "files/bash-build-tools"
-destination = "stages/{{ stage1_name }}/portage"
+destination = "stages/{{ stage1_name }}"
 when = "znver4"
