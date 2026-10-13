@@ -359,7 +359,7 @@ stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]
 stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
 
-# Catalyst cleans the stage's releng directory after it has applied this build-time Bash helper config.
+# Catalyst removes Portage config under releng/ from the built stage after the build.
 # Compile mksyntax for baseline x86-64 while keeping target Bash compiler flags (eg. znver4) unchanged.
 [[files]]
 source = "files/bash-build-tools"
