@@ -1,7 +1,7 @@
 format = 1
 min_app_version = "0.3.1"
 name = "Raspberry Pi 5"
-description = "Gentoo for Raspberry Pi 5: CPU tuned stages, boot configuration, zram swap and optional GNOME and KDE Plasma desktops."
+description = "Gentoo for Raspberry Pi 5: CPU target selection, boot configuration, zram swap and optional GNOME and KDE Plasma desktops."
 groups_title = "Software"
 architecture = "arm64"
 
@@ -17,11 +17,11 @@ options = [
 
 [[variables]]
 id = "optimization"
-title = "CPU optimization"
+title = "CPU target"
 default = "tuned"
 options = [
-    { value = "tuned", title = "Tuned for Cortex-A76" },
-    { value = "generic", title = "Generic arm64" },
+    { value = "tuned", title = "ARM Cortex-A76 (cortex-a76)" },
+    { value = "generic", title = "Generic baseline" },
 ]
 
 [[variables]]

@@ -19,7 +19,7 @@ cpupower and sudo, with boot configuration in `/boot`.
 | Option | Values |
 |---|---|
 | Init system | OpenRC, systemd (services are enabled automatically with OpenRC only) |
-| CPU optimization | Tuned for Cortex-A76, generic arm64 |
+| CPU target | ARM Cortex-A76 (cortex-a76), Generic baseline |
 | Link-time optimization (LTO) | Off by default. Includes workarounds for packages that fail with LTO |
 | Kernel | Compiled by Catalyst (default) as kernel `rpi` of every stage4 (genkernel, `raspberrypi-sources` with `bcm2712_defconfig`), installed like the prebuilt one (`kernel_2712.img`, device trees, overlays), or prebuilt (`raspberrypi-image`). Sources stay in the system, `build-raspberrypi-kernel` builds them again |
 | Installation ISO (experimental) | OpenRC only. Live ISO (`livecd-stage1`, `livecd-stage2` from console stage3) with installation tools and kernel `rpi` compiled by Catalyst from `raspberrypi-sources` (`bcm2712_defconfig`). Raspberry Pi firmware boots from FAT partitions, not ISO images, so it's for testing |

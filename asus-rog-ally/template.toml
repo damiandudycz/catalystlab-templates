@@ -17,12 +17,12 @@ options = [
 
 [[variables]]
 id = "optimization"
-title = "CPU optimization"
+title = "CPU target"
 description = "The Ally and Ally X use AMD Zen 4 processors. Generic amd64 builds are more portable to other computers."
 default = "znver4"
 options = [
     { value = "znver4", title = "AMD Zen 4 (znver4)" },
-    { value = "generic", title = "Generic amd64" },
+    { value = "generic", title = "Generic baseline" },
 ]
 
 [[variables]]
