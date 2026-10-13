@@ -117,12 +117,12 @@ spec_prefix = "{{ 'hardfloat-' if hardfloat else '' }}"
 iso_suffix = "{{ '-openrc' if variant == 'i486' else '' }}"
 stage4_name = "stage4-{{ init }}"
 # Release type names optimizations (eg. 23.0-power9-lto), stages without them use 23.0-default of releng specs.
-optimizations = "{{ (['power9'] if power9 else []) + ([cpu_target] if cpu_target != 'generic' else []) + (['lto'] if lto else []) }}"
+optimizations = "{{ (['power9'] if power9 else []) + ([cpu_target] if cpu_target and cpu_target != 'generic' else []) + (['lto'] if lto else []) }}"
 rel_type = "{{ '23.0-' + join('-', optimizations) if optimizations else '' }}"
 # Default flags of Catalyst for subarch of the spec, LTO flags are added to them.
 arm_float_abi = "{{ 'hard' if hardfloat else 'softfp' }}"
 subarch_flags = "{{ '-O2 -pipe -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=' + arm_float_abi if variant == 'armv7a' else '-O2 -pipe -march=armv6j -mfpu=vfp -mfloat-abi=' + arm_float_abi if variant == 'armv6j' else '-O2 -pipe -march=armv5te' if variant == 'armv5tel' else '-O2 -pipe -march=armv4t' if variant == 'armv4tl' else '-O2 -mcpu=ultrasparc -pipe' if architecture == 'sparc' else '-O2 -march=i686 -msse2 -mfpmath=sse -pipe' if variant == 'i686-ssemath' else '-O2 -march=i686 -pipe' if variant == 'i686' else '-O2 -march=i486 -pipe' if variant == 'i486' else '-O2 -mcpu=powerpc -mtune=powerpc -pipe' if architecture == 'ppc' else '-O2 -pipe -mcpu=power9 -mtune=power9' if power9 else '-O2 -pipe -march=z10' if architecture == 's390x' else '-O2 -pipe' }}"
-cpu_target_flags = "{{ '-march=x86-64-v2' if cpu_target == 'x86-64-v2' else '-march=x86-64-v3' if cpu_target == 'x86-64-v3' else '-march=x86-64-v4' if cpu_target == 'x86-64-v4' else '-march=' + cpu_target if architecture == 'arm64' and cpu_target != 'generic' else '-mcpu=' + cpu_target + ' -mtune=' + cpu_target if architecture == 'ppc64' and cpu_target != 'generic' else '-march=' + cpu_target if architecture == 's390x' and cpu_target != 'generic' else '' }}"
+cpu_target_flags = "{{ '-march=x86-64-v2' if cpu_target == 'x86-64-v2' else '-march=x86-64-v3' if cpu_target == 'x86-64-v3' else '-march=x86-64-v4' if cpu_target == 'x86-64-v4' else '-march=' + cpu_target if architecture == 'arm64' and cpu_target and cpu_target != 'generic' else '-mcpu=' + cpu_target + ' -mtune=' + cpu_target if architecture == 'ppc64' and cpu_target and cpu_target != 'generic' else '-march=' + cpu_target if architecture == 's390x' and cpu_target and cpu_target != 'generic' else '' }}"
 stage4_packages = "{{ ['app-portage/gentoolkit', 'net-misc/chrony'] + (['app-admin/sysklogd'] if init == 'openrc' else []) + (['net-misc/networkmanager'] if network == 'networkmanager' else ['net-misc/dhcpcd'] if network == 'dhcpcd' else []) }}"
 stage4_services = "{{ ['sysklogd|default', 'chronyd|default', 'sshd|default', 'NetworkManager|default' if network == 'networkmanager' else 'dhcpcd|default'] if init == 'openrc' else [] }}"
 
