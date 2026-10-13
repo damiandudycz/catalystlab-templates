@@ -3,7 +3,7 @@ min_app_version = "0.2.0"
 name = "Gentoo release"
 description = "Stages built like official Gentoo releases: stage1, stage3, stage4 and minimal installation ISO, using releng spec templates."
 
-groups_title = "Additional software"
+groups_title = "Software"
 
 [[variables]]
 id = "architecture"
@@ -115,12 +115,16 @@ options = [
 ]
 
 [[variables]]
-id = "iso"
-title = "Installation ISO"
-description = "Minimal installation ISO, built from OpenRC stage3 like official releases."
-type = "boolean"
-default = true
+id = "extra_stages"
+title = "Extra stages"
+section = "Extra stages"
+description = "Build the optional minimal installation ISO from OpenRC stage3, as in official Gentoo releases."
+type = "multiple"
+default = ["iso"]
 when = "init == 'openrc' and (architecture in ['amd64', 'arm64', 'ppc', 'ppc64le'] or variant in ['sparc64', 'i486'])"
+options = [
+    { value = "iso", title = "Installation ISO" },
+]
 
 [values]
 # Releng spec names, eg. armv7a/stage1-hardfloat-openrc-23.spec, stage3-systemd-power9le-23.spec.
@@ -129,6 +133,7 @@ spec_flavor = "{{ init + ('-power9le' if power9 else '') }}"
 spec_prefix = "{{ 'hardfloat-' if hardfloat else '' }}"
 iso_suffix = "{{ '-openrc' if variant == 'i486' else '' }}"
 stage4_name = "stage4-{{ init }}"
+iso = "{{ 'iso' in extra_stages }}"
 # Release type names optimizations (eg. 23.0-power9-lto), stages without them use 23.0-default of releng specs.
 optimizations = "{{ (['power9'] if power9 else []) + ([cpu_target] if cpu_target and cpu_target != 'generic' else []) + (['lto'] if lto else []) }}"
 rel_type = "{{ '23.0-' + join('-', optimizations) if optimizations else '' }}"

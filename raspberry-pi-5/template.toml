@@ -61,7 +61,7 @@ default = true
 
 [[variables]]
 id = "extra_stages"
-title = "Build stages"
+title = "Extra stages"
 section = "Extra stages"
 previous_id = "desktop"
 description = "Select GNOME or KDE Plasma stage4 builds, optional customized GNOME stage4, or experimental ISO stages. Raspberry Pi firmware doesn't boot ISO images directly, so the ISO stages are intended for testing."

@@ -28,23 +28,17 @@ type = "boolean"
 default = false
 
 [[variables]]
-id = "desktop"
-title = "Desktop"
-description = "Xfce stages are built next to the console stage4, from desktop stage3."
-default = "none"
+id = "extra_stages"
+title = "Extra stages"
+section = "Extra stages"
+description = "Build an optional Xfce stage4 and/or a live installation ISO. The ISO boots from petitboot."
+type = "multiple"
+default = []
 when = "init == 'openrc'"
 options = [
-    { value = "none", title = "None" },
-    { value = "xfce", title = "Xfce" },
+    { value = "xfce", title = "Xfce stage4" },
+    { value = "iso", title = "Installation ISO" },
 ]
-
-[[variables]]
-id = "iso"
-title = "Installation ISO"
-description = "Live ISO with PS3 kernel, PS3 Gentoo installer and installation tools, built from console stage3. Boots from petitboot."
-type = "boolean"
-default = false
-when = "init == 'openrc'"
 
 [[variables]]
 id = "zram"
@@ -59,7 +53,8 @@ options = [
 
 [values]
 openrc = "{{ init == 'openrc' }}"
-with_desktop = "{{ desktop == 'xfce' }}"
+iso = "{{ 'iso' in extra_stages }}"
+with_desktop = "{{ 'xfce' in extra_stages }}"
 common_flags = "-O2 -pipe -mcpu=cell -mtune=cell -mabi=altivec -mno-string -mno-update -mno-multiple{{ ' -flto -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing' if lto else '' }}"
 stage1_name = "stage1-{{ init }}"
 stage4_name = "stage4-{{ init }}"
