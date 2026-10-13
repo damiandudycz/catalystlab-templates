@@ -64,10 +64,11 @@ id = "extra_stages"
 title = "Extra stages"
 section = "Extra stages"
 previous_id = "desktop"
-description = "Select GNOME or KDE Plasma stage4 builds, optional customized GNOME stage4, or experimental ISO stages. Raspberry Pi firmware doesn't boot ISO images directly, so the ISO stages are intended for testing."
+description = "Select the console stage4, GNOME or KDE Plasma stage4 builds, optional customized GNOME stage4, or experimental ISO stages. Raspberry Pi firmware doesn't boot ISO images directly, so the ISO stages are intended for testing."
 type = "multiple"
 default = []
 options = [
+    { value = "stage4", title = "Console stage4" },
     { value = "gnome", title = "GNOME stage4" },
     { value = "gnome_customized", title = "Customized GNOME stage4", when = "'gnome' in extra_stages" },
     { value = "plasma", title = "KDE Plasma stage4" },
@@ -147,6 +148,7 @@ id = "stage4"
 parent = "stage3"
 name = "{{ stage4_name }}"
 target = "stage4"
+when = "'stage4' in extra_stages"
 [stages.arguments]
 stage4_use = ["networkmanager", "bluetooth"]
 stage4_packages = "{{ base_packages }}"
@@ -293,12 +295,12 @@ destination = "stages/{{ stage1_name }}"
 [[files]]
 source = "files/kernel-sources"
 destination = "stages/{{ stage4_name }}"
-when = "compiled_kernel"
+when = "compiled_kernel and 'stage4' in extra_stages"
 
 [[files]]
 source = "files/kernel-rebuild/build-kernel.sh"
 destination = "stages/{{ stage4_name }}/root_overlay/usr/local/sbin/build-raspberrypi-kernel"
-when = "compiled_kernel"
+when = "compiled_kernel and 'stage4' in extra_stages"
 
 [[files]]
 source = "files/kernel-sources"
@@ -324,11 +326,12 @@ when = "compiled_kernel and 'plasma' in extra_stages"
 [[files]]
 source = "files/stage4"
 destination = "stages/{{ stage4_name }}"
+when = "'stage4' in extra_stages"
 
 [[files]]
 source = "files/zram"
 destination = "stages/{{ stage4_name }}/root_overlay"
-when = "zram != 'off'"
+when = "'stage4' in extra_stages and zram != 'off'"
 
 # Desktops: the same as console stage4, with display manager and build workarounds of large packages.
 [[files]]
@@ -406,6 +409,7 @@ id = "wireless"
 title = "Wi-Fi and Bluetooth"
 description = "Firmware of wireless chip and Bluetooth service."
 default = true
+when = "'stage4' in extra_stages or 'gnome' in extra_stages or 'plasma' in extra_stages or 'iso' in extra_stages or 'iso_gui' in extra_stages"
 # Live CDs get firmware in stage1 (stage2 is built from it), their services add Bluetooth.
 stages = ["stage4", "stage4-gnome", "stage4-plasma", "livecd-stage1", "livegui-stage1"]
 [groups.arguments]
@@ -418,6 +422,7 @@ id = "utilities"
 title = "Raspberry Pi utilities"
 description = "vcgencmd, pinctrl, eeprom and other tools."
 default = true
+when = "'stage4' in extra_stages or 'gnome' in extra_stages or 'plasma' in extra_stages"
 stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["dev-embedded/raspberrypi-utils"]
@@ -426,6 +431,7 @@ stage4_packages = ["dev-embedded/raspberrypi-utils"]
 id = "development"
 title = "Development tools"
 description = "git, eselect-repository, distcc and kernel headers."
+when = "'stage4' in extra_stages or 'gnome' in extra_stages or 'plasma' in extra_stages"
 stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/distcc", "sys-kernel/linux-headers"]
@@ -434,6 +440,7 @@ stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/d
 id = "docker"
 title = "Docker"
 description = "Container engine, started at boot."
+when = "'stage4' in extra_stages or 'gnome' in extra_stages or 'plasma' in extra_stages"
 stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]

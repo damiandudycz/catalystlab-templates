@@ -3,13 +3,13 @@
 Gentoo for PlayStation 3, based on the configuration from the first version of Catalyst Lab.
 
 ```
-stage1 ─┬─ stage3 ─┬─ stage4                       (console system)
+stage1 ─┬─ stage3 ─┬─ stage4                       (optional console system)
         │          └─ livecd-stage1 ── livecd-stage2 (optional installation ISO, OpenRC)
         └─ stage3-desktop ── stage4-desktop-xfce    (optional, OpenRC)
 ```
 
 - Stages are built for Cell CPU (`cell` subarch, AltiVec), optionally with LTO.
-- stage4 includes PS3 kernel (`sys-kernel/gentoo-kernel-ps3`), video memory swap (`ps3vram-swap`) and `ps3pf_utils`,
+- The console stage4 is optional and off by default. It includes PS3 kernel (`sys-kernel/gentoo-kernel-ps3`), video memory swap (`ps3vram-swap`) and `ps3pf_utils`,
   NetworkManager, SSH and NTP. Optional zram swap and development tools.
 - PS3 packages come from [ps3-gentoo-overlay](https://github.com/damiandudycz/ps3-gentoo-overlay), which is added to
   Catalyst Lab when the project is created.

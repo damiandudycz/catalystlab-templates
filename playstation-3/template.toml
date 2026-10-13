@@ -31,13 +31,13 @@ default = false
 id = "extra_stages"
 title = "Extra stages"
 section = "Extra stages"
-description = "Build an optional Xfce stage4 and/or a live installation ISO. The ISO boots from petitboot."
+description = "Select the console stage4, optional Xfce stage4, or a live installation ISO. The ISO boots from petitboot."
 type = "multiple"
 default = []
-when = "init == 'openrc'"
 options = [
-    { value = "xfce", title = "Xfce stage4" },
-    { value = "iso", title = "Installation ISO" },
+    { value = "stage4", title = "Console stage4" },
+    { value = "xfce", title = "Xfce stage4", when = "init == 'openrc'" },
+    { value = "iso", title = "Installation ISO", when = "init == 'openrc'" },
 ]
 
 [[variables]]
@@ -92,6 +92,7 @@ id = "stage4"
 parent = "stage3"
 name = "{{ stage4_name }}"
 target = "stage4"
+when = "'stage4' in extra_stages"
 [stages.arguments]
 stage4_use = ["ps3", "dist-kernel"]
 stage4_packages = "{{ base_packages }}"
@@ -168,6 +169,7 @@ destination = "stages/{{ stage1_name }}"
 [[files]]
 source = "files/stage4"
 destination = "stages/{{ stage4_name }}"
+when = "'stage4' in extra_stages"
 
 [[files]]
 source = "files/stage4"
@@ -190,6 +192,7 @@ title = "Development tools"
 description = "git, eselect-repository, distcc and kernel headers."
 default = true
 stages = ["stage4", "stage4-desktop"]
+when = "'stage4' in extra_stages or 'xfce' in extra_stages"
 [groups.arguments]
 stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/distcc", "sys-kernel/linux-headers"]
 

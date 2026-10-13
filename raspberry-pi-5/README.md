@@ -6,13 +6,13 @@ Select **From template** when creating a project in Catalyst Lab.
 ## Stages
 
 ```
-stage1 ─┬─ stage3 ── stage4                          (console system)
+stage1 ─┬─ stage3 ── stage4                          (optional console system)
         └─ stage3-desktop ─┬─ stage4-gnome           (if GNOME is selected)
                            └─ stage4-plasma          (if KDE Plasma is selected)
 ```
 
-stage4 includes the Raspberry Pi kernel and firmware (`sys-kernel/raspberrypi-image`), NetworkManager, SSH, NTP,
-cpupower and sudo, with boot configuration in `/boot`.
+The console stage4 is optional and off by default. It includes the Raspberry Pi kernel and firmware
+(`sys-kernel/raspberrypi-image`), NetworkManager, SSH, NTP, cpupower and sudo, with boot configuration in `/boot`.
 
 ## Options
 

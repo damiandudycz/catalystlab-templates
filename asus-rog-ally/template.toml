@@ -45,10 +45,11 @@ id = "extra_stages"
 title = "Extra stages"
 section = "Extra stages"
 previous_id = "desktop"
-description = "Build optional GNOME and KDE Plasma stage4 systems, a minimal install ISO, or a Plasma live ISO."
+description = "Select the console stage4, optional GNOME and KDE Plasma stage4 systems, a minimal install ISO, or a Plasma live ISO."
 type = "multiple"
 default = []
 options = [
+    { value = "stage4", title = "Console stage4" },
     { value = "gnome", title = "GNOME stage4" },
     { value = "gnome_customized", title = "Customized GNOME stage4", when = "'gnome' in extra_stages" },
     { value = "plasma", title = "KDE Plasma stage4" },
@@ -119,6 +120,7 @@ id = "stage4"
 parent = "stage3"
 name = "{{ stage4_name }}"
 target = "stage4"
+when = "'stage4' in extra_stages"
 [stages.arguments]
 stage4_use = ["networkmanager", "bluetooth"]
 stage4_packages = "{{ base_packages }}"
@@ -216,8 +218,10 @@ id = "livegui-stage2"
 parent = "livegui-stage1"
 name = "{{ livegui_stage2_name }}"
 target = "livecd_stage2"
+releng_template = "livegui/livegui-stage2.spec"
 when = "'iso_gui' in extra_stages"
 [stages.arguments]
+boot_kernel = ["@releng"]
 livecd_type = "gentoo-release-livecd"
 livecd_bootargs = "nodhcp"
 livecd_depclean = "no"
@@ -232,11 +236,12 @@ livecd_empty = ["/var/db/repos", "/usr/src"]
 [[files]]
 source = "files/stage4"
 destination = "stages/{{ stage4_name }}"
+when = "'stage4' in extra_stages"
 
 [[files]]
 source = "files/zram"
 destination = "stages/{{ stage4_name }}/root_overlay"
-when = "zram != 'off'"
+when = "'stage4' in extra_stages and zram != 'off'"
 
 [[files]]
 source = "files/stage4"
@@ -338,6 +343,7 @@ id = "wireless"
 title = "Wi-Fi and Bluetooth"
 description = "Bluetooth support and the Wi-Fi supplicant; firmware is provided by linux-firmware."
 default = true
+when = "'stage4' in extra_stages or 'gnome' in extra_stages or 'plasma' in extra_stages or 'iso' in extra_stages or 'iso_gui' in extra_stages"
 stages = ["stage4", "stage4-gnome", "stage4-plasma", "livecd-stage1", "livegui-stage1"]
 [groups.arguments]
 stage4_packages = ["net-wireless/bluez", "net-wireless/wpa_supplicant"]
@@ -348,6 +354,7 @@ stage4_rcadd = "{{ ['bluetooth|default'] if openrc else [] }}"
 id = "development"
 title = "Development tools"
 description = "git, eselect-repository, distcc and kernel headers."
+when = "'stage4' in extra_stages or 'gnome' in extra_stages or 'plasma' in extra_stages"
 stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/distcc", "sys-kernel/linux-headers"]
@@ -356,6 +363,7 @@ stage4_packages = ["dev-vcs/git", "app-eselect/eselect-repository", "sys-devel/d
 id = "docker"
 title = "Docker"
 description = "Container engine, started at boot."
+when = "'stage4' in extra_stages or 'gnome' in extra_stages or 'plasma' in extra_stages"
 stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]

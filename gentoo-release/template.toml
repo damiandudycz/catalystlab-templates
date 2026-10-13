@@ -1,7 +1,7 @@
 format = 1
 min_app_version = "0.2.0"
 name = "Gentoo release"
-description = "Stages built like official Gentoo releases: stage1, stage3, stage4 and minimal installation ISO, using releng spec templates."
+description = "Stages built like official Gentoo releases, with optional stage4 systems, minimal installation ISO, and amd64 LiveGUI ISO."
 
 groups_title = "Software"
 
@@ -118,12 +118,13 @@ options = [
 id = "extra_stages"
 title = "Extra stages"
 section = "Extra stages"
-description = "Build the optional minimal installation ISO from OpenRC stage3, as in official Gentoo releases."
+description = "Select optional stage4 systems and ISO builds based on official Gentoo Releng specifications."
 type = "multiple"
-default = ["iso"]
-when = "init == 'openrc' and (architecture in ['amd64', 'arm64', 'ppc', 'ppc64le'] or variant in ['sparc64', 'i486'])"
+default = []
 options = [
-    { value = "iso", title = "Installation ISO" },
+    { value = "stage4", title = "Stage4" },
+    { value = "iso", title = "Installation ISO", when = "init == 'openrc' and (architecture in ['amd64', 'arm64', 'ppc', 'ppc64le'] or variant in ['sparc64', 'i486'])" },
+    { value = "livegui", title = "LiveGUI ISO", when = "architecture == 'amd64' and init == 'openrc'" },
 ]
 
 [values]
@@ -134,6 +135,7 @@ spec_prefix = "{{ 'hardfloat-' if hardfloat else '' }}"
 iso_suffix = "{{ '-openrc' if variant == 'i486' else '' }}"
 stage4_name = "stage4-{{ init }}"
 iso = "{{ 'iso' in extra_stages }}"
+livegui = "{{ 'livegui' in extra_stages }}"
 # Release type names optimizations (eg. 23.0-power9-lto), stages without them use 23.0-default of releng specs.
 optimizations = "{{ (['power9'] if power9 else []) + ([cpu_target] if cpu_target and cpu_target != 'generic' else []) + (['lto'] if lto else []) }}"
 rel_type = "{{ '23.0-' + join('-', optimizations) if optimizations else '' }}"
@@ -167,6 +169,7 @@ id = "stage4"
 parent = "stage3"
 name = "{{ stage4_name }}"
 target = "stage4"
+when = "'stage4' in extra_stages"
 [stages.arguments]
 stage4_packages = "{{ stage4_packages }}"
 stage4_rcadd = "{{ stage4_services }}"
@@ -187,12 +190,38 @@ target = "livecd_stage2"
 releng_template = "{{ spec_directory }}installcd-stage2-minimal{{ iso_suffix }}.spec"
 when = "iso"
 
+[[stages]]
+id = "stage3-desktop"
+parent = "stage1"
+name = "stage3-desktop-openrc"
+target = "stage3"
+releng_template = "stage3d-openrc-23.spec"
+when = "livegui"
+
+[[stages]]
+id = "livegui-stage1"
+parent = "stage3-desktop"
+name = "livegui-stage1-openrc"
+target = "livecd_stage1"
+releng_template = "livegui/livegui-stage1.spec"
+when = "livegui"
+
+[[stages]]
+id = "livegui-stage2"
+parent = "livegui-stage1"
+name = "livegui-stage2-openrc"
+target = "livecd_stage2"
+releng_template = "livegui/livegui-stage2.spec"
+when = "livegui"
+[stages.arguments]
+boot_kernel = ["@releng"]
+
 [[groups]]
 id = "kernel"
 title = "Kernel and firmware"
 description = "Distribution kernel (gentoo-kernel-bin) with initramfs, and firmware."
 default = true
-when = "architecture in ['amd64', 'arm64', 'ppc64', 'ppc64le', 'x86']"
+when = "'stage4' in extra_stages and architecture in ['amd64', 'arm64', 'ppc64', 'ppc64le', 'x86']"
 stages = ["stage4"]
 [groups.arguments]
 stage4_packages = ["sys-kernel/gentoo-kernel-bin", "sys-kernel/linux-firmware"]
@@ -205,7 +234,7 @@ id = "bootloader"
 title = "GRUB bootloader"
 description = "Installed in system, configured when deploying."
 default = true
-when = "architecture in ['amd64', 'arm64', 'ppc64', 'ppc64le', 'x86']"
+when = "'stage4' in extra_stages and architecture in ['amd64', 'arm64', 'ppc64', 'ppc64le', 'x86']"
 stages = ["stage4"]
 [groups.arguments]
 stage4_packages = ["sys-boot/grub"]
@@ -216,6 +245,7 @@ title = "sudo"
 description = "Members of wheel group can run commands as root."
 default = true
 stages = ["stage4"]
+when = "'stage4' in extra_stages"
 [groups.arguments]
 stage4_packages = ["app-admin/sudo"]
 [[groups.files]]
@@ -226,6 +256,7 @@ destination = "root_overlay"   # Files added to root of stage.
 id = "editors"
 title = "vim"
 stages = ["stage4"]
+when = "'stage4' in extra_stages"
 [groups.arguments]
 stage4_packages = ["app-editors/vim"]
 
@@ -234,5 +265,6 @@ id = "tools"
 title = "Administration tools"
 description = "htop, tmux, lsof, pciutils and usbutils."
 stages = ["stage4"]
+when = "'stage4' in extra_stages"
 [groups.arguments]
 stage4_packages = ["sys-process/htop", "app-misc/tmux", "sys-process/lsof", "sys-apps/pciutils", "sys-apps/usbutils"]

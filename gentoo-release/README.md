@@ -1,7 +1,7 @@
 # Gentoo release
 
-Stages built like official Gentoo releases, from releng spec templates: stage1, stage3, stage4 and minimal
-installation ISO.
+Stages built from official Gentoo Releng specifications. Select stage4, minimal installation ISO, or (on amd64/OpenRC)
+LiveGUI ISO under Extra stages; all are optional and off by default.
 
 - Architectures: amd64, arm64, arm (ARMv7-A, ARMv6, ARMv5TE, ARMv4T, hard float), ppc, ppc64, ppc64le (POWER9),
   s390x, sparc (SPARC64, SPARC), x86 (i686, i686 with SSE math, i486).
@@ -12,4 +12,5 @@ installation ISO.
 - Link-time optimization (LTO): optional, stage1 is built with `-flto` added to selected CPU flags, later stages inherit it.
 - Init system: OpenRC or systemd. Network: NetworkManager, dhcpcd (OpenRC) or systemd-networkd (systemd).
 - Installation ISO: where releng has installcd specs, built from OpenRC stage3.
-- Software of stage4: kernel and firmware, GRUB, sudo, vim, administration tools.
+- LiveGUI ISO: amd64/OpenRC only, based on the Releng desktop stage3 and LiveGUI specs, including its Releng kernel settings.
+- Software of stage4: kernel and firmware, GRUB, sudo, vim, administration tools. Stage4 is optional.
