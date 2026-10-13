@@ -1,0 +1,10 @@
+#!/bin/bash
+# Build-time Bash helpers must run on baseline x86-64 under QEMU user emulation.
+filtered=()
+for arg in "$@"; do
+    case "$arg" in
+        -march=*|-mtune=*|-mcpu=*) ;;
+        *) filtered+=("$arg") ;;
+    esac
+done
+exec gcc "${filtered[@]}" -march=x86-64 -mtune=generic
