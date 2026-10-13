@@ -1,2 +1,0 @@
-CC_FOR_BUILD="/bin/bash /etc/portage/releng/bash-build-cc"
-CFLAGS_FOR_BUILD="-O2 -march=x86-64 -mtune=generic"

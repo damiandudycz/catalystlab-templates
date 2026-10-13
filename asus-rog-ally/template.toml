@@ -28,7 +28,7 @@ options = [
 [[variables]]
 id = "strip_avx512_for_emulation"
 title = "Strip AVX-512 instructions for emulation"
-description = "Disable AVX-512 code generation so binaries built with Zen 4 flags are less likely to use instructions unsupported by QEMU user emulation."
+description = "Only enable this when building the x86_64 stages under QEMU on a different architecture. Disables AVX-512 code generation to avoid instructions unsupported by the emulator."
 type = "boolean"
 default = false
 when = "optimization == 'znver4'"
@@ -367,10 +367,3 @@ stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]
 stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
-
-# Catalyst removes Portage config under releng/ from the built stage after the build.
-# Compile mksyntax for baseline x86-64 while keeping target Bash compiler flags (eg. znver4) unchanged.
-[[files]]
-source = "files/bash-build-tools"
-destination = "stages/{{ stage1_name }}"
-when = "znver4"
