@@ -359,8 +359,8 @@ stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]
 stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
 
-# mksyntax is a build-time Bash helper. Compile it for baseline x86-64 while keeping the target Bash
-# compiler flags (eg. znver4) unchanged. This applies regardless of the host architecture.
+# Catalyst cleans the stage's releng directory after it has applied this build-time Bash helper config.
+# Compile mksyntax for baseline x86-64 while keeping target Bash compiler flags (eg. znver4) unchanged.
 [[files]]
 source = "files/bash-build-tools"
 destination = "stages/{{ stage1_name }}"
