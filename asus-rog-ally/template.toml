@@ -235,7 +235,7 @@ livecd_empty = ["/var/db/repos", "/usr/src"]
 
 [[files]]
 source = "files/emulation/portage_confdir/releng"
-destination = "stages/{{ stage1_name }}/portage"
+destination = "stages/{{ stage1_name }}/portage/releng"
 when = "strip_avx512_for_emulation"
 
 [[files]]

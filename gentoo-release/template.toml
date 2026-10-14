@@ -149,7 +149,7 @@ stage4_services = "{{ ['sysklogd|default', 'chronyd|default', 'sshd|default', 'N
 
 [[files]]
 source = "files/emulation/portage_confdir/releng"
-destination = "stages/stage1-{{ init }}/portage"
+destination = "stages/stage1-{{ init }}/portage/releng"
 when = "strip_avx512_for_emulation"
 
 [[stages]]
