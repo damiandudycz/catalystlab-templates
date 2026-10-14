@@ -148,7 +148,7 @@ stage4_packages = "{{ ['app-portage/gentoolkit', 'net-misc/chrony'] + (['app-adm
 stage4_services = "{{ ['sysklogd|default', 'chronyd|default', 'sshd|default', 'NetworkManager|default' if network == 'networkmanager' else 'dhcpcd|default'] if init == 'openrc' else [] }}"
 
 [[files]]
-source = "files/emulation/portage"
+source = "files/emulation/portage_confdir/releng"
 destination = "stages/stage1-{{ init }}/portage"
 when = "strip_avx512_for_emulation"
 
