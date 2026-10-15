@@ -1,5 +1,5 @@
 format = 1
-min_app_version = "0.2.0"
+min_app_version = "2.0.0"
 name = "Gentoo release"
 description = "Stages built like official Gentoo releases, with optional stage4 systems, minimal installation ISO, and amd64 LiveGUI ISO."
 

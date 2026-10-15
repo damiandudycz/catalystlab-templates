@@ -1,5 +1,5 @@
 format = 1
-min_app_version = "0.3.1"
+min_app_version = "2.0.0"
 name = "ASUS ROG Ally / Ally X"
 description = "Gentoo for the ASUS ROG Ally and Ally X, with AMD graphics, firmware, optional GNOME or KDE Plasma, and ISO builds."
 groups_title = "Software"

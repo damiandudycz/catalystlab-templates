@@ -1,6 +1,6 @@
 # Raspberry Pi 5 template for Catalyst Lab
 
-[Catalyst Lab](https://github.com/damiandudycz/catalyst-lab-2) project template that builds Gentoo for Raspberry Pi 5.
+[Catalyst Lab](https://github.com/damiandudycz/catalyst-lab) project template that builds Gentoo for Raspberry Pi 5.
 Select **From template** when creating a project in Catalyst Lab.
 
 ## Stages
@@ -43,4 +43,4 @@ The hostname is generated from the name of the project.
 
 ## Format
 
-See [Project templates](https://github.com/damiandudycz/catalyst-lab-2/blob/main/docs/project-templates.md).
+See [Project templates](https://github.com/damiandudycz/catalyst-lab/blob/main/docs/project-templates.md).

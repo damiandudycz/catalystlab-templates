@@ -1,6 +1,6 @@
 # Catalyst Lab templates
 
-Project templates for [Catalyst Lab](https://github.com/damiandudycz/catalyst-lab-2). They are offered when creating
+Project templates for [Catalyst Lab](https://github.com/damiandudycz/catalyst-lab). They are offered when creating
 a project with **From template**.
 
 | Template | Description |
@@ -10,5 +10,5 @@ a project with **From template**.
 | [Raspberry Pi 5](raspberry-pi-5/README.md) | Gentoo for Raspberry Pi 5: CPU tuned stages, boot configuration, zram swap and optional GNOME and KDE Plasma desktops. |
 
 Every template is a directory with `template.toml` and its files. See
-[Project templates](https://github.com/damiandudycz/catalyst-lab-2/blob/main/docs/project-templates.md) for the format.
-Templates need Catalyst Lab 0.2.0 or newer, PlayStation 3 needs 0.3.0.
+[Project templates](https://github.com/damiandudycz/catalyst-lab/blob/main/docs/project-templates.md) for the format.
+Templates need Catalyst Lab 2.0.0 or newer.

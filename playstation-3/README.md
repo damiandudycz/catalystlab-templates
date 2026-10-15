@@ -18,4 +18,4 @@ stage1 ─┬─ stage3 ─┬─ stage4                       (optional console
   kernel with dracut live initramfs), PS3 Gentoo installer and tools of Gentoo minimal installation ISO. petitboot
   loads it with `yaboot.conf` on the ISO, which uses volume label `Gentoo-ps3`.
 
-Requires Catalyst Lab 0.3.0 or newer.
+Requires Catalyst Lab 2.0.0 or newer.

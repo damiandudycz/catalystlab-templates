@@ -1,5 +1,5 @@
 format = 1
-min_app_version = "0.3.1"
+min_app_version = "2.0.0"
 name = "Raspberry Pi 5"
 description = "Gentoo for Raspberry Pi 5: CPU target selection, boot configuration, zram swap and optional GNOME and KDE Plasma desktops."
 groups_title = "Software"
