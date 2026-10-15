@@ -1,1 +1,1 @@
-sys-devel/gcc gcc-build-safe
+sys-devel/gcc releng/gcc-build-safe
