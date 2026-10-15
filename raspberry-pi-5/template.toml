@@ -540,3 +540,7 @@ when = "'iso_gui' in extra_stages"
 source = "files/zram"
 destination = "stages/{{ livegui_stage2_name }}/root_overlay"
 when = "'iso_gui' in extra_stages and zram != 'off'"
+
+[[files]]
+source = "files/project.gitignore"
+destination = ".gitignore"

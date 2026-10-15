@@ -373,3 +373,7 @@ stages = ["stage4", "stage4-gnome", "stage4-plasma"]
 [groups.arguments]
 stage4_packages = ["app-containers/docker", "app-containers/docker-cli"]
 stage4_rcadd = "{{ ['docker|default'] if openrc else [] }}"
+
+[[files]]
+source = "files/project.gitignore"
+destination = ".gitignore"

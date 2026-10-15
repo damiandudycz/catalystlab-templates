@@ -273,3 +273,7 @@ stages = ["stage4"]
 when = "'stage4' in extra_stages"
 [groups.arguments]
 stage4_packages = ["sys-process/htop", "app-misc/tmux", "sys-process/lsof", "sys-apps/pciutils", "sys-apps/usbutils"]
+
+[[files]]
+source = "files/project.gitignore"
+destination = ".gitignore"

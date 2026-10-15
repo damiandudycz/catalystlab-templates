@@ -217,3 +217,7 @@ when = "iso"
 source = "files/stage4/root_overlay"
 destination = "stages/{{ iso_stage2_name }}/root_overlay"
 when = "iso and zram != 'off'"
+
+[[files]]
+source = "files/project.gitignore"
+destination = ".gitignore"
