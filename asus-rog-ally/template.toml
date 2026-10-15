@@ -234,8 +234,8 @@ livecd_unmerge = ["net-misc/netifrc"]
 livecd_empty = ["/var/db/repos", "/usr/src"]
 
 [[files]]
-source = "files/emulation/portage_confdir/releng"
-destination = "stages/{{ stage1_name }}/portage/releng"
+source = "files/emulation/portage_confdir"
+destination = "stages/{{ stage1_name }}/portage"
 when = "strip_avx512_for_emulation"
 
 [[files]]
